@@ -13,9 +13,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
+    <orderEntry type="module" module-name="google-play-services_lib" />
+    <orderEntry type="library" name="google-play-services" level="project" />
     <orderEntry type="library" name="libs" level="project" />
+    <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
 

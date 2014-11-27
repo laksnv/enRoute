@@ -1,53 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
         >
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  android:gravity="center"
-                  android:layout_margin="10dp"
-            >
+    <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/from_label"
+            android:layout_gravity="fill_horizontal"
+            android:text="@string/from"
+            android:textColor="?android:textColorSecondary" />
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From"
-                android:layout_margin="10dp"
-                />
+    <AutoCompleteTextView
+            android:id="@+id/from"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:completionThreshold="3" />
 
-        <EditText android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:id="@+id/origin"
-                  android:layout_margin="10dp"
-                />
+    <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/to_label"
+            android:layout_gravity="fill_horizontal"
+            android:text="@string/to"
+            android:textColor="?android:textColorSecondary" />
 
-    </LinearLayout>
+    <AutoCompleteTextView
+            android:id="@+id/to"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:completionThreshold="3" />
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  android:layout_gravity="center"
-                  android:layout_margin="10dp"
-            >
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="To"
-                android:layout_margin="10dp"
-                />
-
-        <EditText android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:id="@+id/destination"
-                  android:layout_margin="10dp"
-                />
-
-    </LinearLayout>
+    <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/load_directions"
+            android:layout_columnSpan="@integer/create_account_pane_column_count"
+            android:layout_gravity="fill_horizontal"
+            android:text="@string/load_directions" />
 
 </LinearLayout>
-
