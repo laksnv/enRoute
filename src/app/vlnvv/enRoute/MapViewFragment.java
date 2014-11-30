@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.directions.route.Route;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,10 +32,13 @@ import java.util.Map;
 /**
  * Created by Vicky on 11/27/14.
  */
-public class MapViewFragment extends android.support.v4.app.Fragment {
+public class MapViewFragment extends android.support.v4.app.Fragment implements RoutingListener {
 
-    private static View inflatedView;
-    private GoogleMap mMap = null;
+    protected static View inflatedView;
+    protected GoogleMap mMap = null;
+
+    protected LatLng fromPosition;
+    protected LatLng toPosition;
 
     // Contains all markers added to map
     private Map<Marker, MyMarker> mMarkersHashMap;
@@ -122,10 +128,16 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
         // To display "move to my location" button
         mMap.setMyLocationEnabled(true);
 
+        fromPosition = new LatLng(40.4947810, -74.4400870);
+        toPosition = new LatLng(39.0839970, -77.1527580);
+
+        displayRoute(fromPosition, toPosition);
+        /*
         Polyline polyline = mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(40.4947810, -74.4400870),
                         new LatLng(39.0839970, -77.1527580))
                 .color(Color.BLUE).geodesic(true));
+        */
 
         LatLngBounds bounds = setMarkers(mMyMarkersArray);
 
@@ -138,6 +150,47 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
             cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mMap.animateCamera(cameraUpdate);
         }
+    }
+
+
+    protected void displayRoute(LatLng fromPosition, LatLng toPosition) {
+        Routing routing = new Routing(Routing.TravelMode.WALKING);
+        routing.registerListener(this);
+        routing.execute(fromPosition, toPosition);
+    }
+
+
+    @Override
+    public void onRoutingFailure() {
+        // The Routing request failed
+        Log.e("DEBUG", "Routing request failed");
+        Toast.makeText(getActivity(), "Routing request failed", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRoutingStart() {
+        // The Routing Request starts
+    }
+
+    @Override
+    public void onRoutingSuccess(PolylineOptions mPolyOptions, Route route) {
+        PolylineOptions polyoptions = new PolylineOptions();
+        polyoptions.color(Color.BLUE);
+        polyoptions.width(10);
+        polyoptions.addAll(mPolyOptions.getPoints());
+        mMap.addPolyline(polyoptions);
+
+        // Start marker
+        MarkerOptions options = new MarkerOptions();
+        options.position(fromPosition);
+        //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue));
+        mMap.addMarker(options);
+
+        // End marker
+        options = new MarkerOptions();
+        options.position(toPosition);
+        //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green));
+        mMap.addMarker(options);
     }
 
 
@@ -217,7 +270,6 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
     }
 
-
     protected class GetLocations extends AsyncTask<Void, Void, Void> {
 
         // Store the context passed to the AsyncTask when the system instantiates it.
@@ -257,8 +309,6 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
             initMarkers();
         }
     }
-
-
 
 
     // Custom InfoWindow, overrides default class
