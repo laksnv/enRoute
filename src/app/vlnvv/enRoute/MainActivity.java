@@ -1,6 +1,7 @@
 package app.vlnvv.enRoute;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -19,10 +20,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-    private GoogleMap googleMap;
     AutoCompleteTextView from, to;
+    Button loadDirections;
 
     private static final String LOG_TAG = "enRoute";
 
@@ -40,14 +41,24 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         from = (AutoCompleteTextView) findViewById(R.id.from);
         to = (AutoCompleteTextView) findViewById(R.id.to);
+        loadDirections = (Button) findViewById(R.id.load_directions);
 
         from.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
         from.setOnItemClickListener(this);
 
         to.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
         to.setOnItemClickListener(this);
+
+        loadDirections.setOnClickListener(this);
     }
 
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == R.id.load_directions) {
+            Intent intent = new Intent(this, SwipeView.class);
+            startActivity(intent);
+        }
+    }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -102,8 +113,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         return resultList;
     }
-
-
 
 
 
