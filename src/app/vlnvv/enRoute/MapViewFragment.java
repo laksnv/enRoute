@@ -183,7 +183,8 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
         // Should iterate through FS objects instead
         for(int i = 0; i < foursquareLocations.size(); i++) {
-            mMyMarkersArray.add(new MyMarker("Venue "+ i+1, byteArray, foursquareLocations.get(i)));
+            int index = i + 1;
+            mMyMarkersArray.add(new MyMarker("Venue "+ index, byteArray, foursquareLocations.get(i)));
         }
 
         friendsDownloaded = true;
