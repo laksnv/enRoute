@@ -121,7 +121,8 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
     /**
      * This is where we can add markers or lines, add listeners or move the camera.
-     * This should only be called once and when we are sure that mMap is not null.
+     * This should only be called when we are sure that mMap is not null.
+     * It is called once after the calculations are done by initMarkers().
      */
     public void setUpMap() {
 
@@ -131,30 +132,26 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         fromPosition = new LatLng(40.4947810, -74.4400870);
         toPosition = new LatLng(39.0839970, -77.1527580);
 
-        displayRoute(fromPosition, toPosition);
-        /*
-        Polyline polyline = mMap.addPolyline(new PolylineOptions()
-                .add(new LatLng(40.4947810, -74.4400870),
-                        new LatLng(39.0839970, -77.1527580))
-                .color(Color.BLUE).geodesic(true));
-        */
+        if(friendsDownloaded == true) {
+            displayRoute(fromPosition, toPosition);
 
-        LatLngBounds bounds = setMarkers(mMyMarkersArray);
+            LatLngBounds bounds = setMarkers(mMyMarkersArray);
 
-        // Offset from edges of map in pixels
-        int padding = 100;
-        CameraUpdate cameraUpdate;
+            // Offset from edges of map in pixels
+            int padding = 100;
+            CameraUpdate cameraUpdate;
 
-        // Display all markers
-        if(bounds != null) {
-            cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-            mMap.animateCamera(cameraUpdate);
+            // Display all markers
+            if (bounds != null) {
+                cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                mMap.animateCamera(cameraUpdate);
+            }
         }
     }
 
 
     protected void displayRoute(LatLng fromPosition, LatLng toPosition) {
-        Routing routing = new Routing(Routing.TravelMode.WALKING);
+        Routing routing = new Routing(Routing.TravelMode.DRIVING);
         routing.registerListener(this);
         routing.execute(fromPosition, toPosition);
     }
