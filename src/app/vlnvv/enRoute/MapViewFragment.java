@@ -133,6 +133,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
         int padding = 100;
         CameraUpdate cameraUpdate;
 
+        // Display all markers
         if(bounds != null) {
             cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mMap.animateCamera(cameraUpdate);
@@ -182,8 +183,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
         // Should iterate through FS objects instead
         for(int i = 0; i < foursquareLocations.size(); i++) {
-            mMyMarkersArray.add(new MyMarker("Venue "+i+1, byteArray, foursquareLocations.get(i).getLatitude(),
-                    foursquareLocations.get(i).getLongitude()));
+            mMyMarkersArray.add(new MyMarker("Venue "+ i+1, byteArray, foursquareLocations.get(i)));
         }
 
         friendsDownloaded = true;
@@ -211,6 +211,11 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
         foursquareLocations.add(location);
     }
 
+    // Called from doInBackground()
+    protected void calcRatings() {
+
+    }
+
 
     protected class GetLocations extends AsyncTask<Void, Void, Void> {
 
@@ -219,7 +224,6 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
         // Constructor called by the system to instantiate the task
         public GetLocations(Context context) {
-
             // Required by the semantics of AsyncTask
             super();
 
@@ -237,6 +241,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
             foursquareCall();
 
             // Calculate ratings in a new thread
+            calcRatings();
 
             return null;
         }
@@ -258,8 +263,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
     // Custom InfoWindow, overrides default class
     public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter
     {
-        public MarkerInfoWindowAdapter() {
-        }
+        public MarkerInfoWindowAdapter() {}
 
         @Override
         public View getInfoWindow(Marker marker)
@@ -277,13 +281,9 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
             ImageView venueImage = (ImageView) v.findViewById(R.id.marker_icon);
             TextView venueName = (TextView)v.findViewById(R.id.marker_label);
-            TextView friendDistance = (TextView)v.findViewById(R.id.marker_distance);
 
             venueImage.setImageBitmap(BitmapFactory.decodeByteArray(myMarker.getmIcon(), 0, myMarker.getmIcon().length));
             venueName.setText(myMarker.getmLabel());
-
-            //String distance = String.format("%.3f", (myMarker.getmDistance()/1000.0)) + " km";
-            //friendDistance.setText(distance);
 
             return v;
         }

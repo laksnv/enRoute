@@ -1,5 +1,7 @@
 package app.vlnvv.enRoute;
 
+import android.location.Location;
+
 /**
  * Created by Vicky on 11/27/14.
  */
@@ -11,10 +13,10 @@ public class MyMarker {
     private Double mLongitude;
     private Float mDistance;
 
-    public MyMarker(String label, byte[] icon, Double latitude, Double longitude) {
+    public MyMarker(String label, byte[] icon, Location location) {
         this.mLabel = label;
-        this.mLatitude = latitude;
-        this.mLongitude = longitude;
+        this.mLatitude = location.getLatitude();
+        this.mLongitude = location.getLongitude();
         this.mIcon = icon;
     }
 
