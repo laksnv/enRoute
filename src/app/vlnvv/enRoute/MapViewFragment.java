@@ -1,8 +1,11 @@
 package app.vlnvv.enRoute;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,17 +14,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Vicky on 11/27/14.
@@ -32,19 +35,13 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
     private GoogleMap mMap = null;
 
     // Contains all markers added to map
-    private HashMap<Marker, MyMarker> mMarkersHashMap;
+    private Map<Marker, MyMarker> mMarkersHashMap;
 
     // Contains a list of MyMarker objects
-    private ArrayList<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
+    private List<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
 
-    // Holds the actual photos
-    ArrayList<Bitmap> friendPhotos = new ArrayList<Bitmap>();
-
-    // Holds the names of friends
-    ArrayList<String> friendNames = new ArrayList<String>();
-
-    // Holds friends locations
-    ArrayList<Location> friendLocations = new ArrayList<Location>();
+    // Foursquare location list
+    private List<Location> foursquareLocations = new ArrayList<Location>();
 
     boolean friendsDownloaded = false;
 
@@ -62,7 +59,12 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // Initialize the HashMap for markers and MyMarker objects
+        mMarkersHashMap = new HashMap<Marker, MyMarker>();
+
         setUpMapIfNeeded();
+
+        (new GetLocations(this.getActivity())).execute();
     }
 
     @Override
@@ -117,16 +119,28 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
      */
     public void setUpMap() {
 
-        // For showing "move to my location" button
+        // To display "move to my location" button
         mMap.setMyLocationEnabled(true);
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(40.4947810, -74.4400870)).title("My Home").snippet("Home Address"));
-        // For zooming automatically to the Dropped PIN Location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.4947810, -74.4400870), 12.0f));
+        Polyline polyline = mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(40.4947810, -74.4400870),
+                        new LatLng(39.0839970, -77.1527580))
+                .color(Color.BLUE).geodesic(true));
+
+        LatLngBounds bounds = setMarkers(mMyMarkersArray);
+
+        // Offset from edges of map in pixels
+        int padding = 100;
+        CameraUpdate cameraUpdate;
+
+        if(bounds != null) {
+            cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            mMap.animateCamera(cameraUpdate);
+        }
     }
 
 
-    protected LatLngBounds setMarkers(ArrayList<MyMarker> markers) {
+    protected LatLngBounds setMarkers(List<MyMarker> markers) {
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         LatLngBounds bounds = null;
@@ -158,35 +172,87 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
     // Called only once by onPostExecute() after downloading friends details
     protected void initMarkers() {
-        int index = 0;
         byte[] byteArray;
         ByteArrayOutputStream stream;
 
-        Bitmap userImage = BitmapFactory.decodeResource(getResources(), R.drawable.blank_image);
+        Bitmap venueImage = BitmapFactory.decodeResource(getResources(), R.drawable.blank_image);
         stream = new ByteArrayOutputStream();
-        userImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        venueImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byteArray = stream.toByteArray();
 
-        // First marker is the user
-//        if(myLatestLocation != null) {
-//            mMyMarkersArray.add(new MyMarker("You", byteArray, myLatestLocation.getLatitude(), myLatestLocation.getLongitude()));
-//        } else {
-//            mMyMarkersArray.add(new MyMarker("You", byteArray, 0.0, 0.0));
-//        }
-
-        for(String name: friendNames) {
-            if((name != null) && (friendLocations.get(index) != null)) {
-                stream = new ByteArrayOutputStream();
-                friendPhotos.get(index).compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byteArray = stream.toByteArray();
-
-                mMyMarkersArray.add(new MyMarker(name, byteArray, friendLocations.get(index).getLatitude(), friendLocations.get(index).getLongitude()));
-            }
-            index++;
+        // Should iterate through FS objects instead
+        for(int i = 0; i < foursquareLocations.size(); i++) {
+            mMyMarkersArray.add(new MyMarker("Venue "+i+1, byteArray, foursquareLocations.get(i).getLatitude(),
+                    foursquareLocations.get(i).getLongitude()));
         }
 
         friendsDownloaded = true;
+        setUpMap();
     }
+
+
+    // Called from doInBackground()
+    protected void foursquareCall() {
+
+        /*
+         * Construct a parallelogram using src and dest co-ordinates
+         * Get list of locations inside the parallelogram
+         * Also, get the details: venue name, checkin count, image if available, rating
+         */
+        Location location = new Location("1");
+
+        location.setLatitude(40.4947810);
+        location.setLongitude(-74.4400870);
+        foursquareLocations.add(location);
+
+        location = new Location("2");
+        location.setLatitude(39.0839970);
+        location.setLongitude(-77.1527580);
+        foursquareLocations.add(location);
+    }
+
+
+    protected class GetLocations extends AsyncTask<Void, Void, Void> {
+
+        // Store the context passed to the AsyncTask when the system instantiates it.
+        Context localContext;
+
+        // Constructor called by the system to instantiate the task
+        public GetLocations(Context context) {
+
+            // Required by the semantics of AsyncTask
+            super();
+
+            // Set a Context for the background task
+            localContext = context;
+        }
+
+        /**
+         * Get all info to populate the map
+         */
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            // Find all Scenic spots from Foursquare
+            foursquareCall();
+
+            // Calculate ratings in a new thread
+
+            return null;
+        }
+
+        /**
+         * A method that's called once doInBackground() completes. Set the markers in map
+         * that displays their details. This method runs on the UI thread.
+         */
+        @Override
+        protected void onPostExecute(Void v) {
+            // Add all these locations to myMarkersArray
+            initMarkers();
+        }
+    }
+
+
 
 
     // Custom InfoWindow, overrides default class
@@ -209,16 +275,15 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
 
             MyMarker myMarker = mMarkersHashMap.get(marker);
 
-            ImageView friendImage = (ImageView) v.findViewById(R.id.marker_icon);
-            TextView friendName = (TextView)v.findViewById(R.id.marker_label);
+            ImageView venueImage = (ImageView) v.findViewById(R.id.marker_icon);
+            TextView venueName = (TextView)v.findViewById(R.id.marker_label);
             TextView friendDistance = (TextView)v.findViewById(R.id.marker_distance);
-            TextView lastUpdatedTime = (TextView)v.findViewById(R.id.marker_time);
 
-            friendImage.setImageBitmap(BitmapFactory.decodeByteArray(myMarker.getmIcon(), 0, myMarker.getmIcon().length));
-            friendName.setText(myMarker.getmLabel());
+            venueImage.setImageBitmap(BitmapFactory.decodeByteArray(myMarker.getmIcon(), 0, myMarker.getmIcon().length));
+            venueName.setText(myMarker.getmLabel());
 
-            String distance = String.format("%.3f", (myMarker.getmDistance()/1000.0)) + " km";
-            friendDistance.setText(distance);
+            //String distance = String.format("%.3f", (myMarker.getmDistance()/1000.0)) + " km";
+            //friendDistance.setText(distance);
 
             return v;
         }
