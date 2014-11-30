@@ -1,6 +1,5 @@
 package app.vlnvv.enRoute;
 
-import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -122,10 +120,9 @@ public class MapViewFragment extends android.support.v4.app.Fragment {
         // For showing "move to my location" button
         mMap.setMyLocationEnabled(true);
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(26.78, 72.56)).title("My Home").snippet("Home Address"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(40.4947810, -74.4400870)).title("My Home").snippet("Home Address"));
         // For zooming automatically to the Dropped PIN Location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(27.78,
-                72.56), 12.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.4947810, -74.4400870), 12.0f));
     }
 
 
