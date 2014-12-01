@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="google-play-services">
+    <archive path="/Users/Vicky/Desktop/Projects/Android/enRoute main/google-play-services_lib/libs/google-play-services.jar" />
+  </library>
+  <library name="android-support-v4">
+    <archive path="/Users/Vicky/Desktop/Projects/Android/enRoute main/enRoute/libs/android-support-v4.jar" />
+    <archive path="/Users/Vicky/Desktop/Projects/Android/enRoute main/enRoute/libs/android-support-v7-appcompat.jar" />
+  </library>
+  <library name="android-support-v7-appcompat">
+    <archive path="/Users/Vicky/Desktop/Projects/Android/enRoute main/enRoute/libs/android-support-v7-appcompat.jar" />
+  </library>
+  <library name="directions" />
+  <library name="gen" />
+</eclipse-userlibraries>
+

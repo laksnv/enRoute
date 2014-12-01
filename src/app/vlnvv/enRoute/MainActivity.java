@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import com.google.android.gms.maps.GoogleMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +55,19 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public void onClick(View view) {
         if(view.getId() == R.id.load_directions) {
             Intent intent = new Intent(this, SwipeView.class);
+
+            // Pass start and end LtLng points to fragment
+            Bundle bundle = new Bundle();
+            bundle.putString("start", from.getText().toString());
+            bundle.putString("end", to.getText().toString());
+
             startActivity(intent);
+
+            /*
+            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + 40.4947810 + "," + -74.4400870 + "&daddr=" + 39.0839970 + "," + -77.1527580));
+            intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+            startActivity(intent);
+            */
         }
     }
 

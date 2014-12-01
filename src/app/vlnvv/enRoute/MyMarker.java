@@ -12,6 +12,7 @@ public class MyMarker {
     private Double mLatitude;
     private Double mLongitude;
     private Float mDistance;
+    private String mAddress;
 
     public MyMarker(String label, byte[] icon, Location location) {
         this.mLabel = label;
@@ -59,5 +60,13 @@ public class MyMarker {
 
     public Float getmDistance() {
         return this.mDistance;
+    }
+
+    public String getmAddress() {
+        return this.mAddress;
+    }
+
+    public void setmAddress(String mAddress) {
+        this.mAddress = mAddress;
     }
 }
