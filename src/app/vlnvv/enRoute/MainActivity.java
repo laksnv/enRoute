@@ -231,7 +231,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             }
 
             for(Venue v : foursquareLocations) {
-                v.setRating((float) ((v.getRating() / v.getDeviation()) * bingMaps.getTotalDistance()));
+                v.setEnRouteRating((((v.getRating() / v.getDeviation()) * bingMaps.getTotalDistance())));
             }
 
             Collections.sort(foursquareLocations);

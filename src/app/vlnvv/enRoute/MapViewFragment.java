@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,30 +29,32 @@ import java.util.Map;
 /**
  * Created by Vicky on 11/27/14.
  */
-public class MapViewFragment extends android.support.v4.app.Fragment implements RoutingListener {
+public class MapViewFragment extends Fragment implements RoutingListener {
 
-    protected static View inflatedView;
-    protected GoogleMap mMap = null;
+    private static View inflatedView;
+
+    private GoogleMap mMap = null;
     private LatLngBounds bounds;
 
-    protected Coordinates fromPosition;
-    protected Coordinates toPosition;
+    private Coordinates fromPosition;
+    private Coordinates toPosition;
 
     // Contains all markers added to map
     private Map<Marker, Venue> mMarkersHashMap;
 
     // Contains a list of Venue objects
-    private List<Venue> mMyMarkersArray = new ArrayList<Venue>();
+    private List<Venue> mMyMarkersArray;
 
     // Foursquare location list
-    private List<Venue> foursquareLocations = new ArrayList<Venue>();
+    private List<Venue> foursquareLocations;
+
+    private List<Coordinates> selectedVenues;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         inflatedView = inflater.inflate(R.layout.map_fragment, container, false);
-        //setUpMapIfNeeded();
 
         return inflatedView;
     }
@@ -63,12 +66,12 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         // Initialize the HashMap for markers and Venue objects
         mMarkersHashMap = new HashMap<Marker, Venue>();
 
+        selectedVenues = new ArrayList<Coordinates>();
+        mMyMarkersArray = new ArrayList<Venue>();
+
         fromPosition = ((SwipeView) getActivity()).getSource();
         toPosition = ((SwipeView) getActivity()).getDestination();
-        foursquareLocations = ((SwipeView) getActivity()).getFoursquareMarkers();
-
-        if(foursquareLocations == null)
-            Log.d("DEBUG", "NULL");
+        foursquareLocations = new ArrayList<Venue>(((SwipeView) getActivity()).getFoursquareMarkers());
 
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
@@ -90,7 +93,6 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
             setUpMapIfNeeded();
         }
     }
-
 
 
     /**
@@ -287,10 +289,15 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
             Venue venue = mMarkersHashMap.get(marker);
 
             ImageView venueImage = (ImageView) v.findViewById(R.id.marker_icon);
-            TextView venueName = (TextView)v.findViewById(R.id.marker_label);
+            TextView venueRating = (TextView) v.findViewById(R.id.rating);
+            TextView venueName = (TextView) v.findViewById(R.id.marker_label);
+            TextView venueAddress = (TextView) v.findViewById(R.id.address);
 
             //venueImage.setImageBitmap(BitmapFactory.decodeByteArray(venue.getmIcon(), 0, venue.getmIcon().length));
+            venueImage.setImageDrawable(getResources().getDrawable(R.drawable.blank_image));
             venueName.setText(venue.getName());
+            venueAddress.setText(venue.getAddress());
+            venueRating.setText(venue.getRating() + "");
 
             return v;
         }

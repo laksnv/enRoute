@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">enRoute</string>
+    <string name="addToRoute">Add to Route</string>
 
     <string name="start">Start</string>
     <string name="stop">Stop</string>
