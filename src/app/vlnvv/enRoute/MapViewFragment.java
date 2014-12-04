@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -22,9 +23,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.util.*;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Vicky on 11/27/14.
@@ -49,7 +59,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
     // Foursquare location list
     private List<Venue> foursquareLocations;
 
-    private Set<Marker> selectedVenues = new HashSet<Marker>();
+    private List<Marker> selectedVenues = new ArrayList<Marker>();
 
     private int getAddressDone = -1;
 
@@ -278,42 +288,49 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.navigate) {
-            /*
-            String BASE_URL = "http://maps.google.com/maps?" +
-                    "saddr=" + fromPosition.getLatitude() + "," + fromPosition.getLongitude() +
-                    "&daddr=" + toPosition.getLatitude() + "," + toPosition.getLongitude() +
-                    //"&daddr=" + 39.88 + "," + 75.25 +
-                    "+to:" + 40.65 + "," + -75.43 +
-                    "&mode=" + "DRIVING";
-            */
-            /*
-            String BASE_URL = "https://www.google.com/maps/dir/" +
-                    "760+W+Genesee+St+Syracuse+NY+13204/" +
-                    "314+Avery+Ave+Syracuse+NY+13204/" +
-                    "9090+Destiny+USA+Dr+Syracuse+NY+13204";
-            */
 
-
-            StringBuilder BASE_URL = new StringBuilder(
-                    "https://www.google.com/maps/dir/" +
-                    fromPosition.getLatitude() + "," + fromPosition.getLongitude() + "/"
-            );
+            StringBuilder MapsApiUrl = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?" +
+                    "origin=" + fromPosition.getLatitude() + "," + fromPosition.getLongitude() +
+                    "&destination=" + toPosition.getLatitude() + "," + toPosition.getLongitude() +
+                    "&waypoints=optimize:true");
 
             for(Marker marker : selectedVenues) {
-                BASE_URL.append(
-                  marker.getPosition().latitude + "," + marker.getPosition().longitude + "/"
+                MapsApiUrl.append(
+                        "|" + marker.getPosition().latitude + "," + marker.getPosition().longitude
                 );
             }
 
-            BASE_URL.append(
-                    toPosition.getLatitude() + "," + toPosition.getLongitude() + "/"
-            );
+            MapsApiUrl.append("&key=AIzaSyDXngtZ_5yKXWfprUULkfRaGn6ukNO4BFs");
 
-
-            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BASE_URL.toString()));
-            intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-            startActivity(intent);
+            try {
+                (new GetWayPointsOrder()).execute(new URL(MapsApiUrl.toString()));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+
+    public void IntentGMap(List<Marker> orderedMarkers) {
+
+        StringBuilder BASE_URL = new StringBuilder(
+                "https://www.google.com/maps/dir/" +
+                        fromPosition.getLatitude() + "," + fromPosition.getLongitude() + "/"
+        );
+
+        for(Marker marker : orderedMarkers) {
+            BASE_URL.append(
+                    marker.getPosition().latitude + "," + marker.getPosition().longitude + "/"
+            );
+        }
+
+        BASE_URL.append(
+                toPosition.getLatitude() + "," + toPosition.getLongitude() + "/"
+        );
+
+        final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BASE_URL.toString()));
+        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+        startActivity(intent);
     }
 
 
@@ -362,4 +379,71 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
         }
         return false;
     }
+
+
+    private class GetWayPointsOrder extends AsyncTask<URL, Void, List<Marker> > {
+
+        @Override
+        protected List<Marker> doInBackground(URL... params) {
+
+            HttpURLConnection con = null;
+            List<Marker> orderedVenues = null;
+            try {
+                con = (HttpURLConnection) params[0].openConnection();
+                JSONObject response = readStream(con.getInputStream());
+                JSONArray wayPointsOrder = response.getJSONArray("routes").getJSONObject(0).getJSONArray("waypoint_order");
+                orderedVenues = new ArrayList<Marker>();
+
+                for(int i=0; i< wayPointsOrder.length();i++)
+                {
+                    int index = wayPointsOrder.getInt(i);
+                    orderedVenues.add(selectedVenues.get(index));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return orderedVenues;
+        }
+
+        private JSONObject readStream(InputStream in)
+        {
+            StringBuilder response = new StringBuilder();
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            JSONObject jsonResponse = null;
+            try {
+                jsonResponse = new JSONObject(response.toString());
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return jsonResponse;
+        }
+
+
+        @Override
+        protected void onPostExecute(List<Marker> orderedMarkers) {
+            //super.onPostExecute(orderedMarkers);
+
+            IntentGMap(orderedMarkers);
+        }
+    }
+
+
 }

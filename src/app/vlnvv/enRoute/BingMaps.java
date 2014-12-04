@@ -80,7 +80,7 @@ public class BingMaps
         }
 	}
 	
-	private double calculateDistance(Coordinates coordinates1, Coordinates coordinates2, char unit) {
+	public double calculateDistance(Coordinates coordinates1, Coordinates coordinates2, char unit) {
 		double lat1 = coordinates1.getLatitude();
 		double lon1 = coordinates1.getLongitude();
 		double lat2 = coordinates2.getLatitude();
