@@ -1,11 +1,14 @@
 package app.vlnvv.enRoute;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -23,6 +26,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
+import com.nostra13.universalimageloader.cache.memory.impl.FIFOLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +70,8 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
     private List<Marker> selectedVenues = new ArrayList<Marker>();
 
-    private int getAddressDone = -1;
+    private ImageLoader imageLoader;
+    private DisplayImageOptions options;
 
 
     @Override
@@ -90,6 +100,13 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
         navigate = (Button) getView().findViewById(R.id.navigate);
         navigate.setOnClickListener(this);
+
+        initImageLoader();
+        imageLoader = ImageLoader.getInstance();
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.blank_image)
+                .cacheInMemory(true)
+                .build();
 
         initMarkers();
     }
@@ -337,33 +354,54 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
     // Custom InfoWindow, overrides default class
     public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private View v;
+
         public MarkerInfoWindowAdapter() {
+            v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
         }
 
         @Override
-        public View getInfoWindow(Marker marker) {
-            return null;
-        }
-
-        // Use info_window.xml as layout file and display info from Venue class
-        @Override
-        public View getInfoContents(Marker marker) {
-            View v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
-
-            Venue venue = mMarkersHashMap.get(marker);
+        public View getInfoWindow(final Marker marker) {
 
             ImageView venueImage = (ImageView) v.findViewById(R.id.marker_icon);
+            String imageUrl = mMarkersHashMap.get(marker).getImg_url();
+
+            if(imageUrl != null) {
+                imageLoader.displayImage(imageUrl, venueImage, options,
+                        new SimpleImageLoadingListener() {
+                            @Override
+                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                super.onLoadingCancelled(imageUri, view);
+                                getInfoContents(marker);
+                            }
+                        }
+                );
+            } else {
+                venueImage.setImageResource(R.drawable.blank_image);
+            }
+
+            Venue venue = mMarkersHashMap.get(marker);
             TextView venueRating = (TextView) v.findViewById(R.id.rating);
             TextView venueName = (TextView) v.findViewById(R.id.marker_label);
             TextView venueAddress = (TextView) v.findViewById(R.id.address);
 
-            //venueImage.setImageBitmap(BitmapFactory.decodeByteArray(venue.getmIcon(), 0, venue.getmIcon().length));
-            venueImage.setImageDrawable(getResources().getDrawable(R.drawable.blank_image));
             venueName.setText(venue.getName());
             venueAddress.setText(venue.getAddress());
             venueRating.setText(venue.getRating() + "");
 
             return v;
+        }
+
+        // Use info_window.xml as layout file and display info from Venue class
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            if(marker != null && marker.isInfoWindowShown()) {
+                marker.hideInfoWindow();
+                marker.showInfoWindow();
+            }
+
+            return null;
         }
     }
 
@@ -377,6 +415,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
             selectedVenues.add(marker);
             marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         }
+
         return false;
     }
 
@@ -445,5 +484,28 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
         }
     }
 
+
+    private void initImageLoader() {
+        int memoryCacheSize;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
+            int memClass = ((ActivityManager)
+                    getActivity().getSystemService(Context.ACTIVITY_SERVICE))
+                    .getMemoryClass();
+            memoryCacheSize = (memClass / 8) * 1024 * 1024;
+        } else {
+            memoryCacheSize = 2 * 1024 * 1024;
+        }
+
+        final ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+                this.getActivity()).threadPoolSize(5)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .memoryCacheSize(memoryCacheSize)
+                .memoryCache(new FIFOLimitedMemoryCache(memoryCacheSize - 1000000))
+                .denyCacheImageMultipleSizesInMemory()
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .build();
+
+        ImageLoader.getInstance().init(config);
+    }
 
 }

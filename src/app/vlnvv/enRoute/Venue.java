@@ -10,6 +10,7 @@ public class Venue implements Serializable, Comparable<Venue> {
     private float rating;
     private double enRouteRating;
     private double deviation;
+    private String img_url;
 
     public Venue(String n, String a, Coordinates coordinates, float rate){
 
@@ -68,6 +69,14 @@ public class Venue implements Serializable, Comparable<Venue> {
         this.enRouteRating = enRouteRating;
     }
 
+
+    public String getImg_url() {
+        return img_url;
+    }
+
+    public void setImg_url(String img_url) {
+        this.img_url = img_url;
+    }
 
     @Override
     public int compareTo(Venue another) {
