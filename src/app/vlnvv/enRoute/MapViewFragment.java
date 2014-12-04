@@ -1,11 +1,8 @@
 package app.vlnvv.enRoute;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +14,6 @@ import android.widget.Toast;
 import com.directions.route.Route;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -36,6 +32,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
     protected static View inflatedView;
     protected GoogleMap mMap = null;
+    private LatLngBounds bounds;
 
     protected Coordinates fromPosition;
     protected Coordinates toPosition;
@@ -49,14 +46,12 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
     // Foursquare location list
     private List<Venue> foursquareLocations = new ArrayList<Venue>();
 
-    boolean friendsDownloaded = false;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         inflatedView = inflater.inflate(R.layout.map_fragment, container, false);
-        setUpMapIfNeeded();
+        //setUpMapIfNeeded();
 
         return inflatedView;
     }
@@ -72,9 +67,18 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         toPosition = ((SwipeView) getActivity()).getDestination();
         foursquareLocations = ((SwipeView) getActivity()).getFoursquareMarkers();
 
-        setUpMapIfNeeded();
+        if(foursquareLocations == null)
+            Log.d("DEBUG", "NULL");
 
-        (new GetLocations(this.getActivity())).execute();
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 15));
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+        });
+
+        initMarkers();
     }
 
     @Override
@@ -133,23 +137,10 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         // To display "move to my location" button
         mMap.setMyLocationEnabled(true);
 
-        if(friendsDownloaded == true) {
-            LatLngBounds bounds = setMarkers(mMyMarkersArray);
+        bounds = setMarkers(mMyMarkersArray);
 
-            // Offset from edges of map in pixels
-            int padding = 0;
-            CameraUpdate cameraUpdate;
-
-            // Display all markers
-            if (bounds != null) {
-                cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                mMap.animateCamera(cameraUpdate);
-            }
-        }
-        else {
-            if (fromPosition != null && toPosition != null) {
-                displayRoute(fromPosition, toPosition);
-            }
+        if (fromPosition != null && toPosition != null) {
+            displayRoute(fromPosition, toPosition);
         }
     }
 
@@ -179,26 +170,30 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
     @Override
     public void onRoutingSuccess(PolylineOptions mPolyOptions, Route route) {
-        PolylineOptions polyoptions = new PolylineOptions();
-        polyoptions.color(Color.BLUE);
-        polyoptions.width(10);
-        polyoptions.addAll(mPolyOptions.getPoints());
-        mMap.addPolyline(polyoptions);
+
+        if(mMap != null) {
+
+            PolylineOptions polyoptions = new PolylineOptions();
+            polyoptions.color(Color.BLUE);
+            polyoptions.width(10);
+            polyoptions.addAll(mPolyOptions.getPoints());
+            mMap.addPolyline(polyoptions);
 
 
-        // Start marker
-        MarkerOptions options = new MarkerOptions();
-        LatLng source = new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude());
-        options.position(source);
-        //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue));
-        mMap.addMarker(options);
+            // Start marker
+            MarkerOptions options = new MarkerOptions();
+            LatLng source = new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude());
+            options.position(source);
+            //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue));
+            mMap.addMarker(options);
 
-        // End marker
-        options = new MarkerOptions();
-        LatLng destination = new LatLng(toPosition.getLatitude(), toPosition.getLongitude());
-        options.position(destination);
-        //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green));
-        mMap.addMarker(options);
+            // End marker
+            options = new MarkerOptions();
+            LatLng destination = new LatLng(toPosition.getLatitude(), toPosition.getLongitude());
+            options.position(destination);
+            //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green));
+            mMap.addMarker(options);
+        }
 
     }
 
@@ -215,6 +210,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
                     .position(new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude()))
                     .title("Source");
             currentMarker = mMap.addMarker(markerOptions);
+            mMarkersHashMap.put(currentMarker, new Venue("Source", "", fromPosition, 0));
             builder.include(currentMarker.getPosition());
 
             markerOptions = new MarkerOptions()
@@ -222,11 +218,12 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
                     .title("Destination")
             ;
             currentMarker = mMap.addMarker(markerOptions);
+            mMarkersHashMap.put(currentMarker, new Venue("Destination", "", toPosition, 0));
             builder.include(currentMarker.getPosition());
         }
 
 
-        if(friendsDownloaded && (markers.size() > 0)) {
+        if(markers.size() > 0) {
             for (Venue venue : markers) {
 
                 // Create user marker with custom icon and other options
@@ -244,8 +241,8 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
                 mMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter());
             }
+            bounds = builder.build();
         }
-        bounds = builder.build();
 
         return bounds;
     }
@@ -266,66 +263,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
             mMyMarkersArray.add(v);
         }
 
-        friendsDownloaded = true;
-        setUpMap();
-    }
-
-
-    // Called from doInBackground()
-    protected void foursquareCall() {
-
-        /*
-         * Construct a parallelogram using src and dest co-ordinates
-         * Get list of locations inside the parallelogram
-         * Also, get the details: venue name, checkin count, image if available, rating
-         */
-        Location location = new Location("1");
-
-        location.setLatitude(40.4947810);
-        location.setLongitude(-74.4400870);
-        //foursquareLocations.add(location);
-
-        location = new Location("2");
-        location.setLatitude(39.0839970);
-        location.setLongitude(-77.1527580);
-        //foursquareLocations.add(location);
-    }
-
-    protected class GetLocations extends AsyncTask<Void, Void, Void> {
-
-        // Store the context passed to the AsyncTask when the system instantiates it.
-        Context localContext;
-
-        // Constructor called by the system to instantiate the task
-        public GetLocations(Context context) {
-            // Required by the semantics of AsyncTask
-            super();
-
-            // Set a Context for the background task
-            localContext = context;
-        }
-
-        /**
-         * Get all info to populate the map
-         */
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            // Find all Scenic spots from Foursquare
-            //foursquareCall();
-
-            return null;
-        }
-
-        /**
-         * A method that's called once doInBackground() completes. Set the markers in map
-         * that displays their details. This method runs on the UI thread.
-         */
-        @Override
-        protected void onPostExecute(Void v) {
-            // Add all these locations to myMarkersArray
-            initMarkers();
-        }
+        setUpMapIfNeeded();
     }
 
 

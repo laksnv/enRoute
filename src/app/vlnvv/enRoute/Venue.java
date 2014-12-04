@@ -2,11 +2,11 @@ package app.vlnvv.enRoute;
 
 import java.io.Serializable;
 
-public class Venue implements Serializable {
+public class Venue implements Serializable, Comparable<Venue> {
 
     private String name;
     private String address; //street address + City/State/ZIP
-    Coordinates coordinates;
+    private Coordinates coordinates;
     private float rating;
     private double deviation;
 
@@ -68,5 +68,19 @@ public class Venue implements Serializable {
     }
 
 
+    @Override
+    public int compareTo(Venue another) {
 
+        if(another.getRating() - this.rating < 0) {
+            return -1;
+        }
+
+        else if(another.getRating() - this.rating > 0) {
+            return 1;
+        }
+
+        else {
+            return 0;
+        }
+    }
 }

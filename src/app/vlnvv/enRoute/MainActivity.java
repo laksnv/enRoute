@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
@@ -208,20 +209,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 return null;
             }
 
-            // Call FS method
-            //Dummy foursquare markers
-
-            /*Venue marker1 = new Venue();
-            marker1.setCoordinates(new Coordinates(40.4867, -74.4444));
-
-            Venue marker2 = new Venue();
-            marker2.setCoordinates(new Coordinates(39.3642830, -74.4229270));
-
-            List<Venue> foursquareMarkers = new ArrayList<Venue>();
-
-            foursquareMarkers.add(marker1);
-            foursquareMarkers.add(marker2);*/
-
             Coordinates source = enRoutePoints[0];
             Coordinates destination = enRoutePoints[enRoutePoints.length-1];
 
@@ -243,7 +230,15 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 }
             }
 
-            return foursquareLocations;
+            for(Venue v : foursquareLocations) {
+                v.setRating((float) ((v.getRating() / v.getDeviation()) * bingMaps.getTotalDistance()));
+            }
+
+            Collections.sort(foursquareLocations);
+
+            List<Venue> filteredFsqLocations = new ArrayList<Venue>(foursquareLocations.subList(0, 10));
+
+            return filteredFsqLocations;
         }
 
         /**

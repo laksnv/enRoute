@@ -14,13 +14,18 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BingMaps 
-{	
+public class BingMaps
+{
+    private double totalDistance;
+
+    public double getTotalDistance() {
+        return totalDistance;
+    }
+
 	public void getDeviations(List<Venue> foursquareMarkers, Coordinates[] pathCoordinates)
 	{
 		Coordinates sourceCoordinates =  pathCoordinates[0];
         Coordinates destCoordinates =  pathCoordinates[pathCoordinates.length -1];
-        double[] deviations = new double[foursquareMarkers.size()];
         
 		for(int x=0; x<foursquareMarkers.size(); x++)
         {
@@ -107,25 +112,26 @@ public class BingMaps
 		List<Coordinates> pathCoordinates = null;
 		try {
 			source = URLEncoder.encode(source, "UTF-8");
-			destination = URLEncoder.encode(destination, "UTF-8");			
-			  URL url = new URL("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.1="+source+"&wp.2="+destination+"&optmz=distance&rpo=Points&tolerances="+tolerance+"&key="+key);
-			  
-			  HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			  
-			  JSONObject bingResponse = readStream(con.getInputStream());
-			  JSONObject routePath = bingResponse.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0).getJSONObject("routePath");
-			  JSONArray pathIndices = routePath.getJSONArray("generalizations").getJSONObject(0).getJSONArray("pathIndices");
-			  JSONArray allCoordinates = routePath.getJSONObject("line").getJSONArray("coordinates");
-			  
-			  pathCoordinates = new ArrayList<Coordinates>();
-			  for(int i=0; i<pathIndices.length(); i++)	
-			  {
-				  JSONArray coordinates = allCoordinates.getJSONArray(pathIndices.getInt(i));
-				  pathCoordinates.add(new Coordinates(coordinates.getDouble(0), coordinates.getDouble(1)));
-			  }
-		} 
+			destination = URLEncoder.encode(destination, "UTF-8");
+            URL url = new URL("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.1="+source+"&wp.2="+destination+"&optmz=distance&rpo=Points&tolerances="+tolerance+"&key="+key);
+
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            JSONObject bingResponse = readStream(con.getInputStream());
+            totalDistance = bingResponse.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0).getDouble("travelDistance");
+            JSONObject routePath = bingResponse.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0).getJSONObject("routePath");
+            JSONArray pathIndices = routePath.getJSONArray("generalizations").getJSONObject(0).getJSONArray("pathIndices");
+            JSONArray allCoordinates = routePath.getJSONObject("line").getJSONArray("coordinates");
+
+            pathCoordinates = new ArrayList<Coordinates>();
+            for(int i=0; i<pathIndices.length(); i++)
+            {
+                JSONArray coordinates = allCoordinates.getJSONArray(pathIndices.getInt(i));
+                pathCoordinates.add(new Coordinates(coordinates.getDouble(0), coordinates.getDouble(1)));
+            }
+        }
 		catch (Exception e) {
-			  e.printStackTrace();
+            e.printStackTrace();
             throw e;
 			}
 		return pathCoordinates.toArray(new Coordinates[pathCoordinates.size()]);
