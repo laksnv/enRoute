@@ -16,27 +16,28 @@ import java.util.List;
 
 public class BingMaps 
 {	
-	public double[] getDeviations(Coordinates[] foursquareMarkers, Coordinates[] pathCoordinates)	
+	public void getDeviations(List<Venue> foursquareMarkers, Coordinates[] pathCoordinates)
 	{
 		Coordinates sourceCoordinates =  pathCoordinates[0];
         Coordinates destCoordinates =  pathCoordinates[pathCoordinates.length -1];
-        double[] deviations = new double[foursquareMarkers.length];
+        double[] deviations = new double[foursquareMarkers.size()];
         
-		for(int x=0; x<foursquareMarkers.length; x++)
+		for(int x=0; x<foursquareMarkers.size(); x++)
         {
-        	Coordinates fsqMarker = foursquareMarkers[x];			
+        	Venue fsqMarker = foursquareMarkers.get(x);
         	int i=0;
-        	double deviation = 0;        	
-        	double distanceFromSource = calculateDistance(fsqMarker, sourceCoordinates, 'K');
-        	double distanceFromDestination = calculateDistance(fsqMarker, destCoordinates, 'K');
+        	double deviation = 0;
+            Coordinates fsqMarkerCoords = new Coordinates(fsqMarker.getCoordinates().getLatitude(),fsqMarker.getCoordinates().getLongitude());
+        	double distanceFromSource = calculateDistance(fsqMarkerCoords, sourceCoordinates, 'K');
+        	double distanceFromDestination = calculateDistance(fsqMarkerCoords, destCoordinates, 'K');
         	boolean gettingFarther = false;
         	if(distanceFromSource < distanceFromDestination)
-        	{	
+        	{
         		//Closer to source. Now find minimum deviation from main path.
         		deviation = distanceFromSource;
         		for(int j=1;j<pathCoordinates.length-1;j++)
         		{
-        			double distanceFromMarker = calculateDistance(fsqMarker, pathCoordinates[j], 'K'); 
+        			double distanceFromMarker = calculateDistance(fsqMarkerCoords, pathCoordinates[j], 'K');
         			if(distanceFromMarker < deviation)
         			{
         				deviation = distanceFromMarker; 
@@ -49,14 +50,14 @@ public class BingMaps
         					gettingFarther = true;
         			}
         		}
-        		deviations[x] = deviation;
+        		fsqMarker.setDeviation(deviation);
         	}
         	else
         	{
         		deviation = distanceFromDestination;
         		for(int j=pathCoordinates.length-2;j>0;j--)
         		{
-        			double distanceFromMarker = calculateDistance(fsqMarker, pathCoordinates[j], 'K'); 
+        			double distanceFromMarker = calculateDistance(fsqMarkerCoords, pathCoordinates[j], 'K');
         			if(distanceFromMarker < deviation)
         			{
         				deviation = distanceFromMarker; 
@@ -69,10 +70,9 @@ public class BingMaps
         					gettingFarther = true;
         			}
         		}
-        		deviations[x] = deviation;
+                fsqMarker.setDeviation(deviation);
         	}
         }
-		return deviations;
 	}
 	
 	private double calculateDistance(Coordinates coordinates1, Coordinates coordinates2, char unit) {
@@ -101,8 +101,7 @@ public class BingMaps
 		  return (rad * 180 / Math.PI);
 		}
 	
-	public Coordinates[] getPointsOnRouteWithTolerance(String source, String destination, double tolerance)
-	{
+	public Coordinates[] getPointsOnRouteWithTolerance(String source, String destination, double tolerance) throws Exception {
         // Binf API key
 		String key = "AhIRfZxIaRl_WYcGbiF3gpFckEDFJDxr1xi6dx3QNrY8I906kJOQTPYFBQ7UHcrS";
 		List<Coordinates> pathCoordinates = null;
@@ -126,7 +125,8 @@ public class BingMaps
 			  }
 		} 
 		catch (Exception e) {
-			  e.printStackTrace();			  
+			  e.printStackTrace();
+            throw e;
 			}
 		return pathCoordinates.toArray(new Coordinates[pathCoordinates.size()]);
 	}

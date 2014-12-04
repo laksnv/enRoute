@@ -1,15 +1,15 @@
 package app.vlnvv.enRoute;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * Created by Vicky on 11/27/14.
@@ -30,19 +30,26 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
      */
     ViewPager mViewPager;
 
+    protected List<Coordinates> foursquareMarkers;
+    protected Coordinates source = null;
+    protected Coordinates destination = null;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.swipe_view);
 
-        // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
+        Bundle extras = getIntent().getExtras();
+        List<Coordinates> foursquareMarkers = (List<Coordinates>) extras.getSerializable("fsqMarkers");
+        source = (Coordinates) extras.get("source");
+        destination = (Coordinates) extras.get("destination");
+
+        // Create the adapter that will return a fragment for each of the three primary sections of the app.
         mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
 
-        // Specify that the Home/Up button should not be enabled, since there is no hierarchical
-        // parent.
+        // Specify that the Home/Up button should not be enabled, since there is no hierarchical parent.
         actionBar.setHomeButtonEnabled(false);
 
         // Specify that we will be displaying tabs in the action bar.
@@ -74,6 +81,16 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
         }
     }
 
+
+    public Coordinates getSource() {
+        return source;
+    }
+
+    public Coordinates getDestination() {
+        return destination;
+    }
+
+
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
@@ -87,6 +104,8 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
+
+
 
     /**
      * A {@link android.support.v4.app.FragmentPagerAdapter} that returns a fragment corresponding to one of the primary

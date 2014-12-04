@@ -2,6 +2,7 @@ package app.vlnvv.enRoute;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
 
@@ -31,6 +33,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     private static final String OUT_JSON = "/json";
 
     private static final String API_KEY = "AIzaSyDXngtZ_5yKXWfprUULkfRaGn6ukNO4BFs";
+
+    private String start;
+    private String end;
+
+    protected Coordinates[] enRoutePoints;
 
 
     @Override
@@ -51,17 +58,28 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         loadDirections.setOnClickListener(this);
     }
 
+    protected void goToSwipeView(List<Coordinates> foursquareMarkers) throws JSONException {
+        Intent intent = new Intent(this, SwipeView.class);
+
+        intent.putExtra("fsqMarkers", (java.io.Serializable) foursquareMarkers);
+
+        if(enRoutePoints != null && enRoutePoints.length >= 2) {
+            intent.putExtra("source", enRoutePoints[0]);
+            intent.putExtra("destination", enRoutePoints[enRoutePoints.length - 1]);
+        }
+        startActivity(intent);
+    }
+
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.load_directions) {
-            Intent intent = new Intent(this, SwipeView.class);
 
-            // Pass start and end LtLng points to fragment
-            Bundle bundle = new Bundle();
-            bundle.putString("start", from.getText().toString());
-            bundle.putString("end", to.getText().toString());
+            start = from.getText().toString();
+            end = to.getText().toString();
 
-            startActivity(intent);
+            if((new getVenuesTask()).execute(start, end) == null) {
+                Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
 
             /*
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + 40.4947810 + "," + -74.4400870 + "&daddr=" + 39.0839970 + "," + -77.1527580));
@@ -126,7 +144,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
 
-
     private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
         private ArrayList<String> resultList;
 
@@ -172,6 +189,66 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                     }
                 }};
             return filter;
+        }
+    }
+
+
+    protected class getVenuesTask extends AsyncTask<String, Void, List<Coordinates>> {
+
+        @Override
+        protected List<Coordinates> doInBackground(String... params) {
+
+            BingMaps bingMaps = new BingMaps();
+            try {
+                enRoutePoints = bingMaps.getPointsOnRouteWithTolerance(params[0], params[1], 0.02);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                return null;
+            }
+
+            // Call FS method
+            //Dummy foursquare markers
+
+            Venue marker1 = new Venue();
+            marker1.setCoordinates(new Coordinates(40.4867, -74.4444));
+
+            Venue marker2 = new Venue();
+            marker2.setCoordinates(new Coordinates(39.3642830, -74.4229270));
+
+            List<Venue> foursquareMarkers = new ArrayList<Venue>();
+
+            foursquareMarkers.add(marker1);
+            foursquareMarkers.add(marker2);
+
+
+            bingMaps.getDeviations(foursquareMarkers, enRoutePoints);
+
+            float maxDeviation = 100;
+            List<Coordinates> foursquareLocations = new ArrayList<Coordinates>();
+
+            for(Venue v : foursquareMarkers) {
+                if(v.getDeviation() < maxDeviation) {
+                    foursquareLocations.add(new Coordinates(v.getCoordinates().getLatitude(), v.getCoordinates().getLongitude()));
+                }
+            }
+
+            return foursquareLocations;
+        }
+
+        /**
+         * A method that's called once doInBackground() completes. Set the markers in map
+         * that displays their details. This method runs on the UI thread.
+         */
+        @Override
+        protected void onPostExecute(List<Coordinates> foursquareMarkers) {
+            // Add all these locations to myMarkersArray
+            try {
+                goToSwipeView(foursquareMarkers);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

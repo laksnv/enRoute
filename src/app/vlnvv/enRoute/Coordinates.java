@@ -1,6 +1,9 @@
 package app.vlnvv.enRoute;
 
-public class Coordinates {
+
+import java.io.Serializable;
+
+public class Coordinates implements Serializable {
 	
 	public Coordinates(double latitude, double longitude)
 	{

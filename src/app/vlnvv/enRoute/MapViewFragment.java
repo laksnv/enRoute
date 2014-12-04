@@ -37,17 +37,17 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
     protected static View inflatedView;
     protected GoogleMap mMap = null;
 
-    protected LatLng fromPosition;
-    protected LatLng toPosition;
+    protected Coordinates fromPosition;
+    protected Coordinates toPosition;
 
     // Contains all markers added to map
-    private Map<Marker, MyMarker> mMarkersHashMap;
+    private Map<Marker, Venue> mMarkersHashMap;
 
-    // Contains a list of MyMarker objects
-    private List<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
+    // Contains a list of Venue objects
+    private List<Venue> mMyMarkersArray = new ArrayList<Venue>();
 
     // Foursquare location list
-    private List<Location> foursquareLocations = new ArrayList<Location>();
+    private List<Coordinates> foursquareLocations = new ArrayList<Coordinates>();
 
     boolean friendsDownloaded = false;
 
@@ -65,8 +65,11 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // Initialize the HashMap for markers and MyMarker objects
-        mMarkersHashMap = new HashMap<Marker, MyMarker>();
+        // Initialize the HashMap for markers and Venue objects
+        mMarkersHashMap = new HashMap<Marker, Venue>();
+
+        fromPosition = ((SwipeView) getActivity()).getSource();
+        toPosition = ((SwipeView) getActivity()).getDestination();
 
         setUpMapIfNeeded();
 
@@ -129,12 +132,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         // To display "move to my location" button
         mMap.setMyLocationEnabled(true);
 
-        fromPosition = new LatLng(40.4947810, -74.4400870);
-        toPosition = new LatLng(39.0839970, -77.1527580);
-
         if(friendsDownloaded == true) {
-            displayRoute(fromPosition, toPosition);
-
             LatLngBounds bounds = setMarkers(mMyMarkersArray);
 
             // Offset from edges of map in pixels
@@ -147,13 +145,22 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
                 mMap.animateCamera(cameraUpdate);
             }
         }
+        else {
+            if (fromPosition != null && toPosition != null) {
+                displayRoute(fromPosition, toPosition);
+            }
+        }
     }
 
 
-    protected void displayRoute(LatLng fromPosition, LatLng toPosition) {
+    protected void displayRoute(Coordinates fromPosition, Coordinates toPosition) {
         Routing routing = new Routing(Routing.TravelMode.DRIVING);
         routing.registerListener(this);
-        routing.execute(fromPosition, toPosition);
+
+        LatLng source = new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude());
+        LatLng destination = new LatLng(toPosition.getLatitude(), toPosition.getLongitude());
+
+        routing.execute(source, destination);
     }
 
 
@@ -177,37 +184,59 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         polyoptions.addAll(mPolyOptions.getPoints());
         mMap.addPolyline(polyoptions);
 
+
         // Start marker
         MarkerOptions options = new MarkerOptions();
-        options.position(fromPosition);
+        LatLng source = new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude());
+        options.position(source);
         //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue));
         mMap.addMarker(options);
 
         // End marker
         options = new MarkerOptions();
-        options.position(toPosition);
+        LatLng destination = new LatLng(toPosition.getLatitude(), toPosition.getLongitude());
+        options.position(destination);
         //options.icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green));
         mMap.addMarker(options);
+
     }
 
 
-    protected LatLngBounds setMarkers(List<MyMarker> markers) {
+    protected LatLngBounds setMarkers(List<Venue> markers) {
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         LatLngBounds bounds = null;
+        MarkerOptions markerOptions;
+        Marker currentMarker;
+
+        if(fromPosition != null && toPosition != null) {
+            markerOptions = new MarkerOptions()
+                    .position(new LatLng(fromPosition.getLatitude(), fromPosition.getLongitude()))
+                    .title("Source");
+            currentMarker = mMap.addMarker(markerOptions);
+            builder.include(currentMarker.getPosition());
+
+            markerOptions = new MarkerOptions()
+                    .position(new LatLng(toPosition.getLatitude(), toPosition.getLongitude()))
+                    .title("Destination")
+            ;
+            currentMarker = mMap.addMarker(markerOptions);
+            builder.include(currentMarker.getPosition());
+        }
+
 
         if(friendsDownloaded && (markers.size() > 0)) {
-            for (MyMarker myMarker : markers) {
+            for (Venue venue : markers) {
 
                 // Create user marker with custom icon and other options
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(new LatLng(myMarker.getmLatitude(), myMarker.getmLongitude()))
-                        .title(myMarker.getmLabel())
-                        //.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(myMarker.getmIcon(), 0, myMarker.getmIcon().length)));
+                markerOptions = new MarkerOptions()
+                        .position(new LatLng(venue.getCoordinates().getLatitude(), venue.getCoordinates().getLongitude()))
+                        .title(venue.getName())
+                        //.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(Venue.getmIcon(), 0, Venue.getmIcon().length)));
                         ;
 
-                Marker currentMarker = mMap.addMarker(markerOptions);
-                mMarkersHashMap.put(currentMarker, myMarker);
+                currentMarker = mMap.addMarker(markerOptions);
+                mMarkersHashMap.put(currentMarker, venue);
 
                 // Calculate bounds of all markers
                 builder.include(currentMarker.getPosition());
@@ -234,7 +263,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         // Should iterate through FS objects instead
         for(int i = 0; i < foursquareLocations.size(); i++) {
             int index = i + 1;
-            mMyMarkersArray.add(new MyMarker("Venue "+ index, byteArray, foursquareLocations.get(i)));
+            mMyMarkersArray.add(new Venue("Venue "+ index, "", foursquareLocations.get(i), 10));
         }
 
         friendsDownloaded = true;
@@ -254,17 +283,12 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
         location.setLatitude(40.4947810);
         location.setLongitude(-74.4400870);
-        foursquareLocations.add(location);
+        //foursquareLocations.add(location);
 
         location = new Location("2");
         location.setLatitude(39.0839970);
         location.setLongitude(-77.1527580);
-        foursquareLocations.add(location);
-    }
-
-    // Called from doInBackground()
-    protected void calcRatings() {
-
+        //foursquareLocations.add(location);
     }
 
     protected class GetLocations extends AsyncTask<Void, Void, Void> {
@@ -288,10 +312,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         protected Void doInBackground(Void... params) {
 
             // Find all Scenic spots from Foursquare
-            foursquareCall();
-
-            // Calculate ratings in a new thread
-            calcRatings();
+            //foursquareCall();
 
             return null;
         }
@@ -319,19 +340,19 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
             return null;
         }
 
-        // Use info_window.xml as layout file and display info from MyMarker class
+        // Use info_window.xml as layout file and display info from Venue class
         @Override
         public View getInfoContents(Marker marker)
         {
             View v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
 
-            MyMarker myMarker = mMarkersHashMap.get(marker);
+            Venue venue = mMarkersHashMap.get(marker);
 
             ImageView venueImage = (ImageView) v.findViewById(R.id.marker_icon);
             TextView venueName = (TextView)v.findViewById(R.id.marker_label);
 
-            venueImage.setImageBitmap(BitmapFactory.decodeByteArray(myMarker.getmIcon(), 0, myMarker.getmIcon().length));
-            venueName.setText(myMarker.getmLabel());
+            //venueImage.setImageBitmap(BitmapFactory.decodeByteArray(venue.getmIcon(), 0, venue.getmIcon().length));
+            venueName.setText(venue.getName());
 
             return v;
         }
