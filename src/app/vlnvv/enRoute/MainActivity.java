@@ -58,7 +58,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         loadDirections.setOnClickListener(this);
     }
 
-    protected void goToSwipeView(List<Coordinates> foursquareMarkers) throws JSONException {
+    protected void goToSwipeView(List<Venue> foursquareMarkers) throws JSONException {
         Intent intent = new Intent(this, SwipeView.class);
 
         intent.putExtra("fsqMarkers", (java.io.Serializable) foursquareMarkers);
@@ -193,10 +193,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
 
-    protected class getVenuesTask extends AsyncTask<String, Void, List<Coordinates>> {
+    protected class getVenuesTask extends AsyncTask<String, Void, List<Venue>> {
 
         @Override
-        protected List<Coordinates> doInBackground(String... params) {
+        protected List<Venue> doInBackground(String... params) {
 
             BingMaps bingMaps = new BingMaps();
             try {
@@ -211,7 +211,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             // Call FS method
             //Dummy foursquare markers
 
-            Venue marker1 = new Venue();
+            /*Venue marker1 = new Venue();
             marker1.setCoordinates(new Coordinates(40.4867, -74.4444));
 
             Venue marker2 = new Venue();
@@ -220,17 +220,26 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             List<Venue> foursquareMarkers = new ArrayList<Venue>();
 
             foursquareMarkers.add(marker1);
-            foursquareMarkers.add(marker2);
+            foursquareMarkers.add(marker2);*/
 
+            Coordinates source = enRoutePoints[0];
+            Coordinates destination = enRoutePoints[enRoutePoints.length-1];
+
+            FourSquare fs = new FourSquare(source,destination);
+            CallAPI call = new CallAPI(fs.getUrl());
+            String response = "";
+            response = call.JSON_result;
+            JSONObject JSONresponse = call.convertToJSON(response);
+            ArrayList<Venue> foursquareMarkers = fs.buildListOfVenues(JSONresponse);
 
             bingMaps.getDeviations(foursquareMarkers, enRoutePoints);
 
             float maxDeviation = 100;
-            List<Coordinates> foursquareLocations = new ArrayList<Coordinates>();
+            List<Venue> foursquareLocations = new ArrayList<Venue>();
 
             for(Venue v : foursquareMarkers) {
                 if(v.getDeviation() < maxDeviation) {
-                    foursquareLocations.add(new Coordinates(v.getCoordinates().getLatitude(), v.getCoordinates().getLongitude()));
+                    foursquareLocations.add(v);
                 }
             }
 
@@ -242,7 +251,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
          * that displays their details. This method runs on the UI thread.
          */
         @Override
-        protected void onPostExecute(List<Coordinates> foursquareMarkers) {
+        protected void onPostExecute(List<Venue> foursquareMarkers) {
             // Add all these locations to myMarkersArray
             try {
                 goToSwipeView(foursquareMarkers);

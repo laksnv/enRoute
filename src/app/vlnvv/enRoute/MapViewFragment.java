@@ -47,7 +47,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
     private List<Venue> mMyMarkersArray = new ArrayList<Venue>();
 
     // Foursquare location list
-    private List<Coordinates> foursquareLocations = new ArrayList<Coordinates>();
+    private List<Venue> foursquareLocations = new ArrayList<Venue>();
 
     boolean friendsDownloaded = false;
 
@@ -70,6 +70,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
         fromPosition = ((SwipeView) getActivity()).getSource();
         toPosition = ((SwipeView) getActivity()).getDestination();
+        foursquareLocations = ((SwipeView) getActivity()).getFoursquareMarkers();
 
         setUpMapIfNeeded();
 
@@ -136,7 +137,7 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
             LatLngBounds bounds = setMarkers(mMyMarkersArray);
 
             // Offset from edges of map in pixels
-            int padding = 100;
+            int padding = 0;
             CameraUpdate cameraUpdate;
 
             // Display all markers
@@ -243,8 +244,8 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
 
                 mMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter());
             }
-            bounds = builder.build();
         }
+        bounds = builder.build();
 
         return bounds;
     }
@@ -261,9 +262,8 @@ public class MapViewFragment extends android.support.v4.app.Fragment implements 
         byteArray = stream.toByteArray();
 
         // Should iterate through FS objects instead
-        for(int i = 0; i < foursquareLocations.size(); i++) {
-            int index = i + 1;
-            mMyMarkersArray.add(new Venue("Venue "+ index, "", foursquareLocations.get(i), 10));
+        for(Venue v : foursquareLocations) {
+            mMyMarkersArray.add(v);
         }
 
         friendsDownloaded = true;

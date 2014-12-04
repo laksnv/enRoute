@@ -30,7 +30,7 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
      */
     ViewPager mViewPager;
 
-    protected List<Coordinates> foursquareMarkers;
+    protected List<Venue> foursquareMarkers;
     protected Coordinates source = null;
     protected Coordinates destination = null;
 
@@ -39,7 +39,7 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
         setContentView(R.layout.swipe_view);
 
         Bundle extras = getIntent().getExtras();
-        List<Coordinates> foursquareMarkers = (List<Coordinates>) extras.getSerializable("fsqMarkers");
+        foursquareMarkers = (List<Venue>) extras.getSerializable("fsqMarkers");
         source = (Coordinates) extras.get("source");
         destination = (Coordinates) extras.get("destination");
 
@@ -88,6 +88,10 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
 
     public Coordinates getDestination() {
         return destination;
+    }
+
+    public List<Venue> getFoursquareMarkers() {
+        return foursquareMarkers;
     }
 
 

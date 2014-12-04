@@ -1,6 +1,8 @@
 package app.vlnvv.enRoute;
 
-public class Venue {
+import java.io.Serializable;
+
+public class Venue implements Serializable {
 
     private String name;
     private String address; //street address + City/State/ZIP
@@ -13,7 +15,7 @@ public class Venue {
         this.setName(n);
         this.setAddress(a);
         this.setRating(rate);
-
+        this.coordinates = coordinates;
     }
 
 
