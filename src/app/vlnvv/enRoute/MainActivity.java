@@ -236,9 +236,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             Collections.sort(foursquareLocations);
 
-            List<Venue> filteredFsqLocations = new ArrayList<Venue>(foursquareLocations.subList(0, 10));
-
-            return filteredFsqLocations;
+            if(foursquareLocations.size() > 10)
+                return new ArrayList<Venue>(foursquareLocations.subList(0, 10));
+            else
+                return foursquareLocations;
         }
 
         /**

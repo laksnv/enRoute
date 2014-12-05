@@ -4,6 +4,8 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:gravity="center"
+              android:layout_margin="10dp"
         >
 
     <TextView
@@ -26,6 +28,7 @@
             android:layout_width="wrap_content"
             android:id="@+id/to_label"
             android:layout_gravity="fill_horizontal"
+            android:layout_marginTop="20dp"
             android:text="@string/to"
             android:textColor="?android:textColorSecondary" />
 
@@ -41,7 +44,8 @@
             android:layout_width="wrap_content"
             android:id="@+id/load_directions"
             android:layout_columnSpan="@integer/create_account_pane_column_count"
-            android:layout_gravity="fill_horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
             android:text="@string/load_directions" />
 
 </LinearLayout>

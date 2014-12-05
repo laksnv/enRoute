@@ -60,31 +60,30 @@ public class FourSquare {
 
 
     public Coordinates[] processCo_ords(Coordinates[] s_d){
-        if(Math.abs(s_d[0].getLatitude()-s_d[1].getLatitude()) < 2.0)
+        if(Math.abs(s_d[0].getLatitude() - s_d[1].getLatitude()) < 1.0)
         {
-            if(s_d[0].getLatitude()<s_d[1].getLatitude()){
-                s_d[0].setLatitude(s_d[0].getLatitude()-1);
-                s_d[1].setLatitude(s_d[1].getLatitude()+1);
+            if(s_d[0].getLatitude() < s_d[1].getLatitude()){
+                s_d[0].setLatitude(s_d[0].getLatitude() - 0.1);
+                s_d[1].setLatitude(s_d[1].getLatitude() + 0.1);
             }
             else
             {
-                s_d[1].setLatitude(s_d[1].getLatitude()-1);
-                s_d[0].setLatitude(s_d[0].getLatitude()+1);
+                s_d[1].setLatitude(s_d[1].getLatitude() - 0.1);
+                s_d[0].setLatitude(s_d[0].getLatitude() + 0.1);
             }
         }
         if(Math.abs(s_d[0].getLongitude()-s_d[1].getLongitude()) < 1.0)
         {
             if(s_d[0].getLongitude()<s_d[1].getLongitude()){
-                s_d[0].setLongitude(s_d[0].getLongitude()-0.5);
-                s_d[1].setLongitude(s_d[1].getLongitude()+0.5);
+                s_d[0].setLongitude(s_d[0].getLongitude() - 0.1);
+                s_d[1].setLongitude(s_d[1].getLongitude() + 0.1);
             }
             else
             {
-                s_d[1].setLongitude(s_d[1].getLongitude()-0.5);
-                s_d[0].setLongitude(s_d[0].getLongitude()+0.5);
+                s_d[1].setLongitude(s_d[1].getLongitude() - 0.1);
+                s_d[0].setLongitude(s_d[0].getLongitude() + 0.1);
             }
         }
-
 
         return s_d;
 
@@ -133,6 +132,9 @@ public class FourSquare {
 
         ArrayList<Venue> venueList =new ArrayList<Venue>();
         try {
+            String prefix;
+            String suffix;
+            String photo;
             JSONArray items = JSONresponse.getJSONObject("response").getJSONArray("groups").getJSONObject(0).getJSONArray("items");
 
             for(int i=0; i<items.length();i++){
@@ -146,9 +148,16 @@ public class FourSquare {
                 double lat = Double.parseDouble(location.getJSONObject("location").getString("lat").toString());
                 double lng = Double.parseDouble(location.getJSONObject("location").getString("lng").toString());
                 float rating = Float.parseFloat(location.has("rating")?location.getString("rating").toString():"1.0");
-                String prefix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("prefix"))?location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("prefix"):null;
-                String suffix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("suffix"))?location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("suffix"):null;
-                String photo = prefix+"75x75"+suffix;
+                try {
+                    prefix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("prefix")) ? location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("prefix") : null;
+                    suffix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("suffix")) ? location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("suffix") : null;
+                    photo = prefix+"75x75"+suffix;
+                }
+                catch(JSONException e)
+                {
+                    photo = null;
+                }
+
                 Coordinates coord = new Coordinates(lat, lng);
                 Venue venue = new Venue(name, address, coord, rating);
                 venue.setImg_url(photo);
