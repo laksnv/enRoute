@@ -104,7 +104,7 @@ public class FourSquare {
 	    		"&oauth_token=VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA" +
 	    		"&v=20141204";*/
 	    
-	    String BASE = "https://api.foursquare.com/v2/venues/explore?&venuePhotos=1&limit=50&query=Scenic%20Lookout&radius=30000";
+	    String BASE = "https://api.foursquare.com/v2/venues/explore?&venuePhotos=1&limit=50&query=Scenic%20Lookout&radius=100000";
 		String OAUTH="VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA";
 		String VERSION = ft.format(dNow).toString();
 		
