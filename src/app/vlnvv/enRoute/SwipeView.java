@@ -138,7 +138,7 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
 
         @Override
         public int getCount() {
-            return 2;
+            return 1;
         }
 
         @Override
@@ -149,8 +149,8 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
                 case 0: title = "Map View";
                     break;
 
-                case 1: title = "Ratings";
-                    break;
+                //case 1: title = "Ratings";
+                    //break;
 
                 default: title = "ERROR";
                     break;

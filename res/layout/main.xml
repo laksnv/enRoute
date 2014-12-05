@@ -8,35 +8,24 @@
               android:layout_margin="10dp"
         >
 
-    <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/from_label"
-            android:layout_gravity="fill_horizontal"
-            android:text="@string/from"
-            android:textColor="?android:textColorSecondary" />
-
     <AutoCompleteTextView
             android:id="@+id/from"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
+            android:hint="From"
+            android:textStyle="italic"
+            android:layout_margin="15dp"
             android:completionThreshold="3" />
-
-    <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/to_label"
-            android:layout_gravity="fill_horizontal"
-            android:layout_marginTop="20dp"
-            android:text="@string/to"
-            android:textColor="?android:textColorSecondary" />
 
     <AutoCompleteTextView
             android:id="@+id/to"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
+            android:hint="To"
+            android:textStyle="italic"
+            android:layout_margin="15dp"
             android:completionThreshold="3" />
 
     <Button
@@ -45,7 +34,16 @@
             android:id="@+id/load_directions"
             android:layout_columnSpan="@integer/create_account_pane_column_count"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:text="@string/load_directions" />
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/my_location"
+            android:text="My location"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            />
 
 </LinearLayout>

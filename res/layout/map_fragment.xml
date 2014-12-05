@@ -14,7 +14,7 @@
              android:layout_height="wrap_content"
              android:id="@+id/navigate"
              android:layout_alignBottom="@id/map"
-             android:background="#30000000"
+             android:background="#30500000"
              android:textColor="#000000"
              android:text="NAVIGATE"
              android:layout_centerHorizontal="true"
