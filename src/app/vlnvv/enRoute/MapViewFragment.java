@@ -15,10 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.directions.route.Route;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
@@ -381,13 +378,13 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
             }
 
             Venue venue = mMarkersHashMap.get(marker);
-            TextView venueRating = (TextView) v.findViewById(R.id.rating);
+            RatingBar venueRating = (RatingBar) v.findViewById(R.id.rating);
             TextView venueName = (TextView) v.findViewById(R.id.marker_label);
             TextView venueAddress = (TextView) v.findViewById(R.id.address);
 
             venueName.setText(venue.getName());
             venueAddress.setText(venue.getAddress());
-            venueRating.setText(venue.getRating() + "");
+            venueRating.setRating(venue.getRating()/2);
 
             return v;
         }
