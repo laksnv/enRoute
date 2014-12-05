@@ -13,7 +13,7 @@
               android:textStyle="bold"
               android:textSize="75dp"
               android:text="enRoute"
-              android:layout_marginBottom="25dp"
+              android:layout_marginBottom="20dp"
             />
 
     <RelativeLayout android:layout_width="wrap_content"
@@ -51,6 +51,37 @@
             android:layout_margin="15dp"
             android:completionThreshold="3" />
 
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/deviationView"
+                  android:text="Max deviation (miles)"
+                  android:layout_gravity="center"
+                  android:layout_marginTop="28dp"
+                  android:layout_marginRight="15dp"
+                  android:textColor="#FFFFFF"
+                  android:textStyle="bold"
+                  android:textSize="15dp"
+                />
+
+        <EditText android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/max_deviation"
+                  android:text="100"
+                  android:layout_gravity="center"
+                  android:layout_marginTop="20dp"
+                  android:layout_marginRight="25dp"
+                  android:textColor="#FFFFFF"
+                  android:textStyle="bold"
+                  android:textSize="20dp"
+                  android:layout_toRightOf="@id/deviationView"
+                  android:inputType="number"
+                />
+
+    </RelativeLayout>
+
     <Button
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -58,6 +89,7 @@
             android:layout_columnSpan="@integer/create_account_pane_column_count"
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
-            android:text="@string/load_directions" />
+            android:text="@string/load_directions"
+            />
 
 </LinearLayout>

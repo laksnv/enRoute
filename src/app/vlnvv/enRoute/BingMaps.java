@@ -25,12 +25,12 @@ public class BingMaps
 	public void getDeviations(List<Venue> foursquareMarkers, Coordinates[] pathCoordinates)
 	{
 		Coordinates sourceCoordinates =  pathCoordinates[0];
-        Coordinates destCoordinates =  pathCoordinates[pathCoordinates.length -1];
+        Coordinates destCoordinates =  pathCoordinates[pathCoordinates.length - 1];
         
-		for(int x=0; x<foursquareMarkers.size(); x++)
+		for(int x = 0; x < foursquareMarkers.size(); x++)
         {
         	Venue fsqMarker = foursquareMarkers.get(x);
-        	int i=0;
+        	int i = 0;
         	double deviation = 0;
             Coordinates fsqMarkerCoords = new Coordinates(fsqMarker.getCoordinates().getLatitude(),fsqMarker.getCoordinates().getLongitude());
         	double distanceFromSource = calculateDistance(fsqMarkerCoords, sourceCoordinates, 'K');
@@ -40,7 +40,7 @@ public class BingMaps
         	{
         		//Closer to source. Now find minimum deviation from action_bar path.
         		deviation = distanceFromSource;
-        		for(int j=1;j<pathCoordinates.length-1;j++)
+        		for(int j = 1; j < pathCoordinates.length - 1; j++)
         		{
         			double distanceFromMarker = calculateDistance(fsqMarkerCoords, pathCoordinates[j], 'K');
         			if(distanceFromMarker < deviation)
@@ -60,7 +60,7 @@ public class BingMaps
         	else
         	{
         		deviation = distanceFromDestination;
-        		for(int j=pathCoordinates.length-2;j>0;j--)
+        		for(int j = pathCoordinates.length - 2; j > 0; j--)
         		{
         			double distanceFromMarker = calculateDistance(fsqMarkerCoords, pathCoordinates[j], 'K');
         			if(distanceFromMarker < deviation)
@@ -124,7 +124,7 @@ public class BingMaps
             JSONArray allCoordinates = routePath.getJSONObject("line").getJSONArray("coordinates");
 
             pathCoordinates = new ArrayList<Coordinates>();
-            for(int i=0; i<pathIndices.length(); i++)
+            for(int i = 0; i < pathIndices.length(); i++)
             {
                 JSONArray coordinates = allCoordinates.getJSONArray(pathIndices.getInt(i));
                 pathCoordinates.add(new Coordinates(coordinates.getDouble(0), coordinates.getDouble(1)));

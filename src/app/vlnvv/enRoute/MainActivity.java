@@ -252,7 +252,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             bingMaps.getDeviations(foursquareMarkers, enRoutePoints);
 
+            String dev = null;
+            dev = ((EditText) findViewById(R.id.max_deviation)).getText().toString();
             float maxDeviation = 100;
+
+            if(tryParseFloat(dev) == true) {
+                maxDeviation = Float.parseFloat(dev);
+            }
+
             List<Venue> foursquareLocations = new ArrayList<Venue>();
 
             for(Venue v : foursquareMarkers) {
@@ -273,7 +280,17 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 return foursquareLocations;
         }
 
-
+        boolean tryParseFloat(String value)
+        {
+            try
+            {
+                Float.parseFloat(value);
+                return true;
+            } catch(NumberFormatException nfe)
+            {
+                return false;
+            }
+        }
 
         /**
          * A method that's called once doInBackground() completes. Set the markers in map

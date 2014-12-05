@@ -111,7 +111,6 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
                 .cacheInMemory(true)
                 .build();
 
-
         initMarkers();
     }
 
