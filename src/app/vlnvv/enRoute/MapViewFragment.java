@@ -58,7 +58,6 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
     private GoogleMap mMap = null;
     private LatLngBounds bounds;
     private Button navigate;
-    private Button myLocation;
 
     private Coordinates fromPosition;
     private Coordinates toPosition;
@@ -97,7 +96,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 25));
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             }
         });

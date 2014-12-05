@@ -2,6 +2,11 @@ package app.vlnvv.enRoute;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -21,11 +26,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-    AutoCompleteTextView from, to;
-    Button loadDirections;
+    private AutoCompleteTextView from, to;
+    private Button loadDirections;
+    private ImageButton myLocation;
+    private TextView title;
 
     private static final String LOG_TAG = "enRoute";
 
@@ -49,6 +57,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         from = (AutoCompleteTextView) findViewById(R.id.from);
         to = (AutoCompleteTextView) findViewById(R.id.to);
         loadDirections = (Button) findViewById(R.id.load_directions);
+        myLocation = (ImageButton) findViewById(R.id.my_location);
 
         from.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
         from.setOnItemClickListener(this);
@@ -57,7 +66,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         to.setOnItemClickListener(this);
 
         loadDirections.setOnClickListener(this);
+        myLocation.setOnClickListener(this);
+
+        title = (TextView) findViewById(R.id.app_title);
+        Typeface typeFace = Typeface.createFromAsset(getAssets(),"fonts/Allura-Regular.ttf");
+        title.setTypeface(typeFace);
     }
+
 
     protected void goToSwipeView(List<Venue> foursquareMarkers) throws JSONException {
         Intent intent = new Intent(this, SwipeView.class);
@@ -81,12 +96,28 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             if((new getVenuesTask()).execute(start, end) == null) {
                 Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
             }
+        }
+        else if(view.getId() == R.id.my_location) {
 
-            /*
-            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + 40.4947810 + "," + -74.4400870 + "&daddr=" + 39.0839970 + "," + -77.1527580));
-            intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-            startActivity(intent);
-            */
+            // instantiate the location manager, note you will need to request permissions in your manifest
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            // get the last know location from your location manager.
+            Location location= locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(this, Locale.getDefault());
+            try {
+                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                String address = addresses.get(0).getAddressLine(0);
+                String city = addresses.get(0).getAddressLine(1);
+                String country = addresses.get(0).getAddressLine(2);
+                from.setText(address + " " + city + " " + country);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -241,6 +272,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             else
                 return foursquareLocations;
         }
+
+
 
         /**
          * A method that's called once doInBackground() completes. Set the markers in map

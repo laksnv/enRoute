@@ -38,7 +38,7 @@ public class BingMaps
         	boolean gettingFarther = false;
         	if(distanceFromSource < distanceFromDestination)
         	{
-        		//Closer to source. Now find minimum deviation from main path.
+        		//Closer to source. Now find minimum deviation from action_bar path.
         		deviation = distanceFromSource;
         		for(int j=1;j<pathCoordinates.length-1;j++)
         		{

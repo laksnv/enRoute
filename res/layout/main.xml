@@ -5,18 +5,41 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center"
-              android:layout_margin="10dp"
+              android:background="@drawable/fast"
         >
 
-    <AutoCompleteTextView
-            android:id="@+id/from"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
-            android:hint="From"
-            android:textStyle="italic"
-            android:layout_margin="15dp"
-            android:completionThreshold="3" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/app_title"
+              android:textStyle="bold"
+              android:textSize="75dp"
+              android:text="enRoute"
+              android:layout_marginBottom="25dp"
+            />
+
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+        <AutoCompleteTextView
+                android:id="@+id/from"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal"
+                android:hint="From"
+                android:textStyle="bold|italic"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_marginTop="5dp"
+                android:completionThreshold="3" />
+
+        <ImageButton android:layout_width="40dp"
+                     android:layout_height="40dp"
+                     android:id="@+id/my_location"
+                     android:src="@drawable/my_location"
+                     android:layout_alignRight="@id/from"
+                     android:layout_marginRight="5dp"
+                />
+
+    </RelativeLayout>
 
     <AutoCompleteTextView
             android:id="@+id/to"
@@ -24,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
             android:hint="To"
-            android:textStyle="italic"
+            android:textStyle="bold|italic"
             android:layout_margin="15dp"
             android:completionThreshold="3" />
 
@@ -36,14 +59,5 @@
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
             android:text="@string/load_directions" />
-
-    <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/my_location"
-            android:text="My location"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:layout_gravity="center"
-            />
 
 </LinearLayout>
