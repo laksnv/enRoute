@@ -213,7 +213,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             Coordinates destination = enRoutePoints[enRoutePoints.length-1];
 
             FourSquare fs = new FourSquare(source,destination);
-            CallAPI call = new CallAPI(fs.getUrl());
+            CallAPI call = new CallAPI(fs.getUrl(),fs.getAltURL());
             String response = "";
             response = call.JSON_result;
             JSONObject JSONresponse = call.convertToJSON(response);

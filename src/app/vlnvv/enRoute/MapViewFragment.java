@@ -1,6 +1,7 @@
 package app.vlnvv.enRoute;
 
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +48,12 @@ import java.util.Map;
  * Created by Vicky on 11/27/14.
  */
 public class MapViewFragment extends Fragment implements RoutingListener,GoogleMap.OnMarkerClickListener, View.OnClickListener {
+
+    /*
+     * Define a request code to send to Google Play services
+     * This code is returned in Activity.onActivityResult
+     */
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     private static View inflatedView;
 
@@ -503,6 +511,28 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
                 .build();
 
         ImageLoader.getInstance().init(config);
+    }
+
+    // Location Updates
+
+    // Define a DialogFragment that displays the error dialog
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
+        // Default constructor. Sets the dialog field to null
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+        // Set the dialog to display
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
+        // Return a Dialog to the DialogFragment.
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
     }
 
 }

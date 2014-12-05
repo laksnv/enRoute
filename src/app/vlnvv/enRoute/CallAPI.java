@@ -16,19 +16,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class CallAPI {
+public class CallAPI{
 
 	public String JSON_result;
 	
-	public CallAPI(String url) { //should take url as  String input
-		JSON_result = init(url);
+	public CallAPI(String url, String altURL) { //should take url as  String input
+		JSON_result = init(url, altURL);
 		//Log.i("JSON RESULT : ",JSON_result);
 	}
 	
-	public String init(String url){
+	public String init(String url, String altURL){
 		String readJSON;
 		try{
 	    	readJSON  = getJSON(url);
+	    	if(readJSON.equals("Retry"))
+	    		readJSON = getJSON(altURL);
 	    	//JSONObject jsonObject = new JSONObject(readJSON);
 	    	//Log.i(MainActivity.class.getName(), jsonObject.getString("date"));
 	    	
@@ -51,6 +53,7 @@ public class CallAPI {
     		HttpResponse response = client.execute(httpGet);
     		StatusLine statusLine = response.getStatusLine();
     		int statusCode = statusLine.getStatusCode();
+    		String errorType = statusLine.getReasonPhrase();
     		if(statusCode == 200){
     			HttpEntity entity = response.getEntity();
     			InputStream content = entity.getContent();
@@ -59,7 +62,14 @@ public class CallAPI {
     			while((line = reader.readLine()) != null){
     				builder.append(line);
     			}
-    		} else {
+    		}
+    		else if(statusCode == 400 && errorType.equals("Bad Request")){
+    			
+    			builder.append("Retry");
+    		}
+    		
+    		
+    		else {
     			Log.e(MainActivity.class.toString(),"Failed at JSON object");
     		}
     	}catch(ClientProtocolException e){
