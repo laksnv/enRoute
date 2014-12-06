@@ -3,7 +3,7 @@
 	<output-test url="file://$MODULE_DIR$/out/test/enRoute"/>
 	<exclude-output/>
 	<contentEntry url="file://$MODULE_DIR$"/>
-	<lib name="$MODULE_DIR$/libs/universal-image-loader-1.9.3.jar" scope="COMPILE">
+	<lib name="universal-image-loader-1.9.3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/libs/universal-image-loader-1.9.3.jar!/"/>
 	</lib>
 	<levels>

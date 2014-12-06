@@ -32,10 +32,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private AutoCompleteTextView from, to;
     private Button loadDirections;
-    private ImageButton myLocation;
     private TextView title;
 
-    private static final String LOG_TAG = "enRoute";
+    public static final String LOG_TAG = "app.vlnvv.enRoute";
 
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
@@ -43,8 +42,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private static final String API_KEY = "AIzaSyDXngtZ_5yKXWfprUULkfRaGn6ukNO4BFs";
 
-    private String start;
-    private String end;
+    private String start = null;
+    private String end = null;
 
     protected Coordinates[] enRoutePoints;
 
@@ -57,7 +56,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         from = (AutoCompleteTextView) findViewById(R.id.from);
         to = (AutoCompleteTextView) findViewById(R.id.to);
         loadDirections = (Button) findViewById(R.id.load_directions);
-        myLocation = (ImageButton) findViewById(R.id.my_location);
 
         from.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
         from.setOnItemClickListener(this);
@@ -66,11 +64,34 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         to.setOnItemClickListener(this);
 
         loadDirections.setOnClickListener(this);
-        myLocation.setOnClickListener(this);
 
         title = (TextView) findViewById(R.id.app_title);
         Typeface typeFace = Typeface.createFromAsset(getAssets(),"fonts/Allura-Regular.ttf");
         title.setTypeface(typeFace);
+
+        // Start location update
+        getLocation();
+    }
+
+
+    protected void getLocation() {
+        // Instantiate the location manager, note you will need to request permissions in your manifest
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Get the last know location from your location manager.
+        Location location= locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            String address = addresses.get(0).getAddressLine(0);
+            String city = addresses.get(0).getAddressLine(1);
+            String country = addresses.get(0).getAddressLine(2);
+            from.setHint(address + " " + city + " " + country);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -91,32 +112,17 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         if(view.getId() == R.id.load_directions) {
 
             start = from.getText().toString();
+
+            if(start == null || start.length() == 0) {
+                start = from.getHint().toString();
+            }
+
             end = to.getText().toString();
 
-            if((new getVenuesTask()).execute(start, end) == null) {
-                Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if(view.getId() == R.id.my_location) {
-
-            // instantiate the location manager, note you will need to request permissions in your manifest
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            // get the last know location from your location manager.
-            Location location= locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            Geocoder geocoder;
-            List<Address> addresses;
-            geocoder = new Geocoder(this, Locale.getDefault());
-            try {
-                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                String address = addresses.get(0).getAddressLine(0);
-                String city = addresses.get(0).getAddressLine(1);
-                String country = addresses.get(0).getAddressLine(2);
-                from.setText(address + " " + city + " " + country);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
+            if(start != null && start.length() > 0 && end != null && end.length() > 0) {
+                if ((new getVenuesTask()).execute(start, end) == null) {
+                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -225,7 +231,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
 
-    protected class getVenuesTask extends AsyncTask<String, Void, List<Venue>> {
+    protected class getVenuesTask extends AsyncTask<String, Void, List<Venue> > {
 
         @Override
         protected List<Venue> doInBackground(String... params) {
@@ -236,27 +242,28 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             } catch (Exception e) {
                 e.printStackTrace();
-
+                Log.e(LOG_TAG, "BingMaps getEnRoutePoints Exception thrown");
                 return null;
             }
 
             Coordinates source = enRoutePoints[0];
-            Coordinates destination = enRoutePoints[enRoutePoints.length-1];
+            Coordinates destination = enRoutePoints[enRoutePoints.length - 1];
 
-            FourSquare fs = new FourSquare(source,destination);
-            CallAPI call = new CallAPI(fs.getUrl(),fs.getAltURL());
-            String response = "";
-            response = call.JSON_result;
+            FourSquare fs = new FourSquare(source, destination);
+            CallAPI call = new CallAPI(fs.getUrl(), fs.getAltURL());
+
+            String response = call.JSON_result;
             JSONObject JSONresponse = call.convertToJSON(response);
             ArrayList<Venue> foursquareMarkers = fs.buildListOfVenues(JSONresponse);
 
             bingMaps.getDeviations(foursquareMarkers, enRoutePoints);
 
-            String dev = null;
-            dev = ((EditText) findViewById(R.id.max_deviation)).getText().toString();
+            String dev = ((EditText) findViewById(R.id.max_deviation)).getText().toString();
+
+            // Default deviation is 100km
             float maxDeviation = 100;
 
-            if(tryParseFloat(dev) == true) {
+            if(dev.length() != 0 && tryParseFloat(dev) == true) {
                 maxDeviation = Float.parseFloat(dev);
             }
 
@@ -274,20 +281,21 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             Collections.sort(foursquareLocations);
 
-            if(foursquareLocations.size() > 10)
+            if(foursquareLocations.size() > 10) {
                 return new ArrayList<Venue>(foursquareLocations.subList(0, 10));
-            else
+
+            } else {
                 return foursquareLocations;
+            }
         }
 
         boolean tryParseFloat(String value)
         {
-            try
-            {
+            try {
                 Float.parseFloat(value);
                 return true;
-            } catch(NumberFormatException nfe)
-            {
+
+            } catch(NumberFormatException nfe) {
                 return false;
             }
         }
@@ -298,11 +306,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
          */
         @Override
         protected void onPostExecute(List<Venue> foursquareMarkers) {
-            // Add all these locations to myMarkersArray
-            try {
-                goToSwipeView(foursquareMarkers);
-            } catch (JSONException e) {
-                e.printStackTrace();
+
+            if(foursquareMarkers != null) {
+                // Add all these locations to myMarkersArray
+                try {
+                    goToSwipeView(foursquareMarkers);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

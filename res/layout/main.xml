@@ -16,30 +16,17 @@
               android:layout_marginBottom="20dp"
             />
 
-    <RelativeLayout android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-        <AutoCompleteTextView
-                android:id="@+id/from"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="fill_horizontal"
-                android:hint="From"
-                android:textStyle="bold|italic"
-                android:layout_marginLeft="15dp"
-                android:layout_marginBottom="15dp"
-                android:layout_marginTop="5dp"
-                android:completionThreshold="3" />
-
-        <ImageButton android:layout_width="40dp"
-                     android:layout_height="40dp"
-                     android:id="@+id/my_location"
-                     android:src="@drawable/my_location"
-                     android:layout_alignRight="@id/from"
-                     android:layout_marginRight="5dp"
-                />
-
-    </RelativeLayout>
+    <AutoCompleteTextView
+            android:id="@+id/from"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:hint="From"
+            android:textStyle="bold|italic"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="5dp"
+            android:completionThreshold="3" />
 
     <AutoCompleteTextView
             android:id="@+id/to"
@@ -69,7 +56,7 @@
         <EditText android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:id="@+id/max_deviation"
-                  android:text="100"
+                  android:hint="50"
                   android:layout_gravity="center"
                   android:layout_marginTop="20dp"
                   android:layout_marginRight="25dp"

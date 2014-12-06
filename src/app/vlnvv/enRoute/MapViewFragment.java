@@ -333,24 +333,29 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
     public void IntentGMap(List<Marker> orderedMarkers) {
 
-        StringBuilder BASE_URL = new StringBuilder(
-                "https://www.google.com/maps/dir/" +
-                        fromPosition.getLatitude() + "," + fromPosition.getLongitude() + "/"
-        );
+        if(orderedMarkers != null) {
 
-        for(Marker marker : orderedMarkers) {
-            BASE_URL.append(
-                    marker.getPosition().latitude + "," + marker.getPosition().longitude + "/"
+            StringBuilder BASE_URL = new StringBuilder(
+                    "https://www.google.com/maps/dir/" +
+                            fromPosition.getLatitude() + "," +
+                            fromPosition.getLongitude() + "/"
             );
+
+            for (Marker marker : orderedMarkers) {
+                BASE_URL.append(
+                        marker.getPosition().latitude + "," + marker.getPosition().longitude + "/"
+                );
+            }
+
+            BASE_URL.append(
+                    toPosition.getLatitude() + "," + toPosition.getLongitude() + "/"
+            );
+
+            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BASE_URL.toString()));
+            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+            startActivity(intent);
+
         }
-
-        BASE_URL.append(
-                toPosition.getLatitude() + "," + toPosition.getLongitude() + "/"
-        );
-
-        final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BASE_URL.toString()));
-        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-        startActivity(intent);
     }
 
 
@@ -428,7 +433,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
         @Override
         protected List<Marker> doInBackground(URL... params) {
 
-            HttpURLConnection con = null;
+            HttpURLConnection con;
             List<Marker> orderedVenues = null;
             try {
                 con = (HttpURLConnection) params[0].openConnection();
@@ -436,7 +441,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
                 JSONArray wayPointsOrder = response.getJSONArray("routes").getJSONObject(0).getJSONArray("waypoint_order");
                 orderedVenues = new ArrayList<Marker>();
 
-                for(int i=0; i< wayPointsOrder.length();i++)
+                for(int i = 0; i < wayPointsOrder.length(); i++)
                 {
                     int index = wayPointsOrder.getInt(i);
                     orderedVenues.add(selectedVenues.get(index));
@@ -472,7 +477,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
             try {
                 jsonResponse = new JSONObject(response.toString());
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
             }
             return jsonResponse;
@@ -481,9 +486,12 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
         @Override
         protected void onPostExecute(List<Marker> orderedMarkers) {
-            //super.onPostExecute(orderedMarkers);
-
-            IntentGMap(orderedMarkers);
+            if(orderedMarkers != null) {
+                IntentGMap(orderedMarkers);
+            } else {
+                Log.e(MainActivity.LOG_TAG, "GetWayPointsOrder doInBackground returned NULL");
+                Toast.makeText(getActivity(), "Something went wrong. Try again", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
