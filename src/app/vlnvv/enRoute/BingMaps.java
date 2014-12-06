@@ -1,5 +1,6 @@
 package app.vlnvv.enRoute;
 
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,15 +108,22 @@ public class BingMaps
 		}
 	
 	public Coordinates[] getPointsOnRouteWithTolerance(String source, String destination, double tolerance) throws Exception {
-        // Binf API key
-		String key = "AhIRfZxIaRl_WYcGbiF3gpFckEDFJDxr1xi6dx3QNrY8I906kJOQTPYFBQ7UHcrS";
-		List<Coordinates> pathCoordinates = null;
+
+        String BING_API_KEY = "AhIRfZxIaRl_WYcGbiF3gpFckEDFJDxr1xi6dx3QNrY8I906kJOQTPYFBQ7UHcrS";
+		List<Coordinates> pathCoordinates;
 		try {
 			source = URLEncoder.encode(source, "UTF-8");
 			destination = URLEncoder.encode(destination, "UTF-8");
-            URL url = new URL("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.1="+source+"&wp.2="+destination+"&optmz=distance&rpo=Points&tolerances="+tolerance+"&key="+key);
+            URL url = new URL("http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.1=" +
+                    source + "&wp.2=" +
+                    destination + "&optmz=distance&rpo=Points" +
+                    "&tolerances=" + tolerance +
+                    "&key=" + BING_API_KEY
+            );
 
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.connect();
 
             JSONObject bingResponse = readStream(con.getInputStream());
             totalDistance = bingResponse.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0).getDouble("travelDistance");
@@ -132,9 +140,11 @@ public class BingMaps
         }
 		catch (Exception e) {
             e.printStackTrace();
+            Log.e(MainActivity.LOG_TAG, "Bing Maps FileNotFoundException");
             throw e;
-			}
-		return pathCoordinates.toArray(new Coordinates[pathCoordinates.size()]);
+		}
+
+        return pathCoordinates.toArray(new Coordinates[pathCoordinates.size()]);
 	}
 	
 	private JSONObject readStream(InputStream in) 

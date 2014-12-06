@@ -4,17 +4,18 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import java.util.List;
 
 /**
  * Created by Vicky on 11/27/14.
  */
-public class SwipeView extends ActionBarActivity implements ActionBar.TabListener {
+public class SwipeView extends ActionBarActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
@@ -23,6 +24,7 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
      * intensive, it may be best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     AppSectionsPagerAdapter mAppSectionsPagerAdapter;
+    private Toolbar toolbar;
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the three primary sections of the app, one at a
@@ -46,39 +48,29 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
         // Create the adapter that will return a fragment for each of the three primary sections of the app.
         mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
+        toolbar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
 
-        // Specify that the Home/Up button should not be enabled, since there is no hierarchical parent.
-        actionBar.setHomeButtonEnabled(false);
-
-        // Specify that we will be displaying tabs in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        // Enable back button
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Set up the ViewPager, attaching the adapter and setting up a listener for when the
         // user swipes between sections.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mAppSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
+    }
 
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mAppSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -93,22 +85,6 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
     public List<Venue> getFoursquareMarkers() {
         return foursquareMarkers;
     }
-
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
 
 
     /**
@@ -138,7 +114,7 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
 
         @Override
@@ -149,8 +125,8 @@ public class SwipeView extends ActionBarActivity implements ActionBar.TabListene
                 case 0: title = "Map View";
                     break;
 
-                //case 1: title = "Ratings";
-                    //break;
+                case 1: title = "Ratings";
+                    break;
 
                 default: title = "ERROR";
                     break;

@@ -3,17 +3,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center"
-              android:background="@drawable/fast"
-        >
+              android:layout_height="match_parent" >
+              <!--android:background="@drawable/fast"-->
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              android:id="@+id/app_title"
-              android:textStyle="bold"
-              android:textSize="75dp"
-              android:text="enRoute"
-              android:layout_marginBottom="20dp"
+    <include layout="@layout/app_bar"
+             android:id="@+id/app_bar"
             />
 
     <AutoCompleteTextView

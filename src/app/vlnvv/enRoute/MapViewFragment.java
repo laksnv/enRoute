@@ -45,7 +45,9 @@ import java.util.Map;
 /**
  * Created by Vicky on 11/27/14.
  */
-public class MapViewFragment extends Fragment implements RoutingListener,GoogleMap.OnMarkerClickListener, View.OnClickListener {
+public class MapViewFragment extends Fragment implements RoutingListener,
+                                                         GoogleMap.OnMarkerClickListener,
+                                                         View.OnClickListener {
 
     /*
      * Define a request code to send to Google Play services
@@ -101,7 +103,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
             }
         });
 
-        navigate = (Button) getView().findViewById(R.id.navigate);
+        navigate = (Button) inflatedView.findViewById(R.id.navigate);
         navigate.setOnClickListener(this);
 
         initImageLoader();
@@ -152,7 +154,7 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
         if (mMap == null) {
             android.support.v4.app.FragmentManager fragMan = getChildFragmentManager();
             mMap = ((SupportMapFragment) fragMan.findFragmentById(R.id.map)).getMap();
-            mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
+            mMap.setOnMarkerClickListener(this);
 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
@@ -289,13 +291,11 @@ public class MapViewFragment extends Fragment implements RoutingListener,GoogleM
 
     // Called only once by onPostExecute() after downloading friends details
     protected void initMarkers() {
-        byte[] byteArray;
         ByteArrayOutputStream stream;
 
         Bitmap venueImage = BitmapFactory.decodeResource(getResources(), R.drawable.blank_image);
         stream = new ByteArrayOutputStream();
         venueImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byteArray = stream.toByteArray();
 
         // Should iterate through FS objects instead
         for (Venue v : foursquareLocations) {

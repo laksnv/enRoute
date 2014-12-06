@@ -2,15 +2,16 @@ package app.vlnvv.enRoute;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+import android.text.SpannableString;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import org.json.JSONArray;
@@ -28,11 +29,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends FragmentActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
 
     private AutoCompleteTextView from, to;
     private Button loadDirections;
     private TextView title;
+    private android.support.v7.widget.Toolbar toolbar;
 
     public static final String LOG_TAG = "app.vlnvv.enRoute";
 
@@ -65,14 +67,31 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         loadDirections.setOnClickListener(this);
 
-        title = (TextView) findViewById(R.id.app_title);
-        Typeface typeFace = Typeface.createFromAsset(getAssets(),"fonts/Allura-Regular.ttf");
-        title.setTypeface(typeFace);
+        // Custom font
+        SpannableString s = new SpannableString("enRoute");
+        //s.setSpan(new TypefaceSpan(this, "Allura-Regular.otf"), 0, s.length(),
+                //Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // Update the tool bar title with the TypefaceSpan instance
+        toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.app_bar);
+        toolbar.setTitle(s);
+        setSupportActionBar(toolbar);
 
         // Start location update
         getLocation();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.app_settings) {
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     protected void getLocation() {
         // Instantiate the location manager, note you will need to request permissions in your manifest
@@ -119,9 +138,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             end = to.getText().toString();
 
-            if(start != null && start.length() > 0 && end != null && end.length() > 0) {
-                if ((new getVenuesTask()).execute(start, end) == null) {
-                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+            if(end == null || end.length() == 0) {
+                Toast.makeText(this, "Enter destination", Toast.LENGTH_SHORT).show();
+
+            } else {
+                if (start != null && start.length() > 0) {
+                    if ((new getVenuesTask()).execute(start, end) == null) {
+                        Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
@@ -289,8 +313,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             }
         }
 
-        boolean tryParseFloat(String value)
-        {
+        boolean tryParseFloat(String value) {
             try {
                 Float.parseFloat(value);
                 return true;
