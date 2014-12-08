@@ -32,14 +32,14 @@ public class BingMaps
         {
         	Venue fsqMarker = foursquareMarkers.get(x);
         	int i = 0;
-        	double deviation = 0;
+        	double deviation;
             Coordinates fsqMarkerCoords = new Coordinates(fsqMarker.getCoordinates().getLatitude(),fsqMarker.getCoordinates().getLongitude());
         	double distanceFromSource = calculateDistance(fsqMarkerCoords, sourceCoordinates, 'K');
         	double distanceFromDestination = calculateDistance(fsqMarkerCoords, destCoordinates, 'K');
         	boolean gettingFarther = false;
         	if(distanceFromSource < distanceFromDestination)
         	{
-        		//Closer to source. Now find minimum deviation from action_bar path.
+        		// Closer to source. Now find minimum deviation from action_bar path.
         		deviation = distanceFromSource;
         		for(int j = 1; j < pathCoordinates.length - 1; j++)
         		{
@@ -171,8 +171,8 @@ public class BingMaps
 		  JSONObject jsonResponse = null;
 		  try {
 			jsonResponse = new JSONObject(response.toString());
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+
+          } catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return jsonResponse;  

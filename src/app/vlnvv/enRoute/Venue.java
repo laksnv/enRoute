@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Venue implements Serializable, Comparable<Venue> {
 
     private String name;
-    private String address; //street address + City/State/ZIP
+    private String address; // street address + City/State/ZIP
     private Coordinates coordinates;
     private float rating;
     private double enRouteRating;
@@ -28,7 +28,7 @@ public class Venue implements Serializable, Comparable<Venue> {
         this.name = name;
     }
 
-    //Getters and Setters
+    // Getters and Setters
     public String getAddress() {
         return this.address;
     }

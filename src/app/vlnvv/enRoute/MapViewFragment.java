@@ -424,6 +424,8 @@ public class MapViewFragment extends Fragment implements RoutingListener,
             marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         }
 
+        //Toast.makeText(getActivity(), "Location added to route", Toast.LENGTH_SHORT).show();
+
         return false;
     }
 

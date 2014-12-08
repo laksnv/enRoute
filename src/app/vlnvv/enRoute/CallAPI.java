@@ -20,9 +20,8 @@ public class CallAPI{
 
 	public String JSON_result;
 	
-	public CallAPI(String url, String altURL) { //should take url as  String input
+	public CallAPI(String url, String altURL) {
 		JSON_result = init(url, altURL);
-		//Log.i("JSON RESULT : ",JSON_result);
 	}
 	
 	public String init(String url, String altURL){
@@ -31,17 +30,13 @@ public class CallAPI{
 	    	readJSON  = getJSON(url);
 	    	if(readJSON.equals("Retry"))
 	    		readJSON = getJSON(altURL);
-	    	//JSONObject jsonObject = new JSONObject(readJSON);
-	    	//Log.i(MainActivity.class.getName(), jsonObject.getString("date"));
-	    	
-	    } 
-	    catch(Exception e){
-	    	
+
+        } catch(Exception e){
 	    		e.printStackTrace();
 	    		return e.toString();
 	    }
-		return readJSON;
 
+		return readJSON;
 	}
 
 	public String getJSON(String address){
@@ -54,7 +49,8 @@ public class CallAPI{
     		StatusLine statusLine = response.getStatusLine();
     		int statusCode = statusLine.getStatusCode();
     		String errorType = statusLine.getReasonPhrase();
-    		if(statusCode == 200){
+
+            if(statusCode == 200) {
     			HttpEntity entity = response.getEntity();
     			InputStream content = entity.getContent();
     			reader = new BufferedReader(new InputStreamReader(content));
@@ -62,22 +58,21 @@ public class CallAPI{
     			while((line = reader.readLine()) != null){
     				builder.append(line);
     			}
-    		}
-    		else if(statusCode == 400 && errorType.equals("Bad Request")){
-    			
+
+            } else if(statusCode == 400 && errorType.equals("Bad Request")) {
     			builder.append("Retry");
-    		}
-    		
-    		
-    		else {
+
+            } else {
     			Log.e(MainActivity.class.toString(),"Failed at JSON object");
     		}
-    	}catch(ClientProtocolException e){
+
+        } catch(ClientProtocolException e) {
     		e.printStackTrace();
-    	} catch (IOException e){
+
+        } catch (IOException e) {
     		e.printStackTrace();
-    	}
-    	finally{
+
+        } finally{
     		if (reader != null) {
   		      try {
   		        reader.close();
@@ -86,7 +81,8 @@ public class CallAPI{
   		        }
   		    }    		
     	}
-    	return builder.toString();
+
+        return builder.toString();
     }
 	
 	public JSONObject convertToJSON(String response){
@@ -96,9 +92,9 @@ public class CallAPI{
 			jsonResponse = new JSONObject(response.toString());
 			
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();		
+			e.printStackTrace();
 		}
+
 	  return jsonResponse;
 	}
 	  

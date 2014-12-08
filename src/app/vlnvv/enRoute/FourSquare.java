@@ -1,6 +1,5 @@
 package app.vlnvv.enRoute;
 
-import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,16 +12,14 @@ import java.util.Date;
 //The call to callAPI object's init() should be asynchronous!!
 
 public class FourSquare {
-	//private ArrayList<Venue> venueList;
-	private Coordinates source;
+
+    private Coordinates source;
 	private Coordinates dest;
-	//private String[] queries;
 	private String url;
 	private String altURL;
 	
 	public FourSquare(Coordinates s, Coordinates d) {
-		// TODO Auto-generated constructor stub		
-		
+
 		Coordinates[] s_d = new Coordinates[2];
 		
 		s_d[0] = new Coordinates(s.getLatitude(),s.getLongitude());
@@ -97,13 +94,7 @@ public class FourSquare {
 	public String buildaltURL(Coordinates dest){
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
-	    Log.i("Date ALt", ft.format(dNow).toString());
-	    
-	    /*String URL = "https://api.foursquare.com/v2/venues/explore?" +
-	    		"ll=40.7,-74" +
-	    		"&oauth_token=VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA" +
-	    		"&v=20141204";*/
-	    
+
 	    String BASE = "https://api.foursquare.com/v2/venues/explore?&venuePhotos=1&limit=50&query=Scenic%20Lookout&radius=100000";
 		String OAUTH="VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA";
 		String VERSION = ft.format(dNow).toString();
@@ -122,42 +113,18 @@ public class FourSquare {
 		
 		Date dNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
-	    Log.i("Date", ft.format(dNow).toString());	    
-	    
 
-	    
-	    /*//Sample URL
-	     * String x = "https://api.foursquare.com/v2/venues/explore?&venuePhotos=1&limit=50"&query=Scenic%20Lookout" +" +
-	    		"&ne=40.48,-74.44" +
-	    		"&sw=39.08,-77.14" +	    		
-	    		"&oauth_token=VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA" +
-	    		"&v=20141201";*/
-	    
 		String BASE = "https://api.foursquare.com/v2/venues/explore?&venuePhotos=1&limit=50&query=Scenic%20Lookout";
 		String OAUTH="VVWFQRYSS331CYBXX2J0T44V3PTXXDNLNMOMUCL2RN5ZJVSA";
 		String VERSION = ft.format(dNow).toString();
 		String NE = Double.toString(source.getLatitude())+","+Double.toString(source.getLongitude());
 		String SW = Double.toString(dest.getLatitude())+","+Double.toString(dest.getLongitude());
-		
-		//String QUERY = this.buildQuery(queries);
-		/*if(!QUERY.equals(""))
-			result = result+"&query="+QUERY;*/
-		
-		String result = BASE+"&ne="+NE+"&sw="+SW+"&oauth_token="+OAUTH+"&v="+VERSION;		
-		return result;
-		
+		String result = BASE+"&ne="+NE+"&sw="+SW+"&oauth_token="+OAUTH+"&v="+VERSION;
+
+        return result;
 	}
 	
-	/*//Query Builder Function
-	 * public String buildQuery(String... queries){
-		String result="";
-		
-		for(String query : queries)
-			result+="%20"+query;
-		
-		return result;
-	}*/
-	
+
 	
 	public ArrayList<Venue> buildListOfVenues(JSONObject JSONresponse){
 		
@@ -180,11 +147,11 @@ public class FourSquare {
 				try{
 					String prefix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("prefix"))?location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("prefix"):null;
 					String suffix = (location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).has("suffix"))?location.getJSONObject("photos").getJSONArray("groups").getJSONObject(0).getJSONArray("items").getJSONObject(0).getString("suffix"):null;
-					photo = prefix+"75x75"+suffix;
+					photo = prefix+"300x300"+suffix;
 				}
 				catch(JSONException e)
 				{
-					photo=null;
+					photo = null;
 				}
 				Coordinates coord = new Coordinates(lat, lng);
 				Venue venue = new Venue(name, address, coord, rating);
@@ -193,13 +160,10 @@ public class FourSquare {
 			}
 			
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
+
+            return null;
 		}
-		
-		//Venue[] venues = venueList.toArray(new Venue[venueList.size()]);
-		
 		
 		return venueList;
 	}
