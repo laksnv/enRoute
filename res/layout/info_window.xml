@@ -20,15 +20,27 @@
                    android:layout_gravity="center"
                 />
 
-        <RatingBar android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:id="@+id/rating"
-                   android:isIndicator="true"
-                   android:numStars="5"
-                   android:stepSize="0.5"
-                   style="?android:attr/ratingBarStyleSmall"
-                   android:layout_gravity="center"
-                />
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                >
+
+            <ImageView android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:src="@drawable/star"
+                       android:id="@+id/star"
+                       android:layout_gravity="center"
+                    />
+
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/star_text"
+                      android:textColor="#000000"
+                      android:textStyle="bold"
+                      android:textSize="8dp"
+                      android:layout_gravity="center"
+                    />
+
+        </FrameLayout>
 
     </LinearLayout>
 
@@ -39,7 +51,7 @@
                   android:layout_margin="10dp"
             >
 
-        <TextView android:layout_width="100dp"
+        <TextView android:layout_width="70dp"
                   android:layout_height="wrap_content"
                   android:id="@+id/marker_label"
                   android:textAllCaps="true"
@@ -49,7 +61,7 @@
                   android:layout_gravity="center"
                 />
 
-        <TextView android:layout_width="100dp"
+        <TextView android:layout_width="70dp"
                   android:layout_height="wrap_content"
                   android:id="@+id/address"
                   android:textAllCaps="true"
