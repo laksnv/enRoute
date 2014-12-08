@@ -3,44 +3,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent" >
-              <!--android:background="@drawable/fast"-->
+              android:layout_height="match_parent"
+        >
 
     <include layout="@layout/app_bar"
              android:id="@+id/app_bar"
             />
 
+
     <AutoCompleteTextView
             android:id="@+id/from"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
             android:hint="From"
-            android:textStyle="bold|italic"
-            android:layout_marginLeft="15dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="5dp"
-            android:completionThreshold="3" />
+            android:textStyle="italic"
+            android:completionThreshold="3"
+            android:textColor="#FFFFFF"
+            android:textSize="15dp"
+            android:layout_margin="15dp"
+            android:background="@drawable/custom_edit_text"
+            />
+
 
     <AutoCompleteTextView
             android:id="@+id/to"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
             android:hint="To"
-            android:textStyle="bold|italic"
+            android:textStyle="italic"
+            android:completionThreshold="3"
+            android:textColor="#FFFFFF"
             android:layout_margin="15dp"
-            android:completionThreshold="3" />
+            android:background="@drawable/custom_edit_text"
+            />
 
-    <RelativeLayout android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+
+    <LinearLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp">
 
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:id="@+id/deviationView"
                   android:text="Max deviation (miles)"
-                  android:layout_gravity="center"
-                  android:layout_marginTop="28dp"
                   android:layout_marginRight="15dp"
                   android:textColor="#FFFFFF"
                   android:textStyle="bold"
@@ -51,17 +58,16 @@
                   android:layout_height="wrap_content"
                   android:id="@+id/max_deviation"
                   android:hint="50"
-                  android:layout_gravity="center"
-                  android:layout_marginTop="20dp"
-                  android:layout_marginRight="25dp"
                   android:textColor="#FFFFFF"
                   android:textStyle="bold"
-                  android:textSize="20dp"
+                  android:textSize="15dp"
                   android:layout_toRightOf="@id/deviationView"
                   android:inputType="number"
                 />
 
-    </RelativeLayout>
+</LinearLayout>
+
+
 
     <Button
             android:layout_height="wrap_content"
@@ -69,7 +75,6 @@
             android:id="@+id/load_directions"
             android:layout_columnSpan="@integer/create_account_pane_column_count"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp"
             android:text="@string/load_directions"
             />
 

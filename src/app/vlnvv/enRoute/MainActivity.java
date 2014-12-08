@@ -33,7 +33,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     private AutoCompleteTextView from, to;
     private Button loadDirections;
-    private TextView title;
     private android.support.v7.widget.Toolbar toolbar;
 
     public static final String LOG_TAG = "app.vlnvv.enRoute";
